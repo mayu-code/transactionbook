@@ -23,6 +23,9 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
     @Query("SELECT SUM(c.amount) FROM Customer c WHERE c.amount>0")
     Double getTotalGaveAmount();
 
+    @Query("SELECT SUM(c.amount) FROM Customer c")
+    Double getNetBalance();
+
     @Query("""
                 SELECT new com.transaction.book.dto.responseDTO.CustomerResponse(
                     c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate)

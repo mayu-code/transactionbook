@@ -17,7 +17,7 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
     List<Transaction> findByCustomerId(@Param("id") long id);
 
     @Query("SELECT t FROM Transaction t WHERE t.customer.id=:customerId AND t.date>:date AND t.date IS NOT NULL ORDER BY t.date")
-    List<Transaction> findAfterTransactions(@Param("customerId") long customerId ,@Param("date") String date);
+    List<Transaction> findAfterTransactions(@Param("customerId") long customerId, @Param("date") String date);
 
     @Query(value = "SELECT * FROM transaction WHERE customer_id = :customerId AND date IS NOT NULL AND date < :date ORDER BY date DESC LIMIT 1", nativeQuery = true)
     Transaction findPreviousTransaction(@Param("customerId") long customerId, @Param("date") String date);
@@ -26,8 +26,20 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
             SELECT new com.transaction.book.dto.responseDTO.TransactionResponse(
                 t.id, t.amount, t.balanceAmount, t.date, t.detail, t.customer.name)
             FROM Transaction t
+            WHERE (:query IS NULL OR (t.customer.name LIKE %:query% OR t.customer.mobileNo LIKE %:query%))
+            AND (:startDate IS NULL OR t.date >=:startDate)
+            AND (:endDate IS Null OR t.date <=:endDate)
             ORDER BY t.date DESC
             """)
-    List<TransactionResponse> findAllTransactions();
+    List<TransactionResponse> findAllTransactions(@Param("query") String query,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate);
+
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.amount>0")
+    Double totalYouGot();
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.amount<0")
+    Double totalYouGave();
 
 }

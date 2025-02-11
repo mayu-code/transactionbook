@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.transaction.book.dto.requestDTO.NewTransactionRequest;
@@ -30,7 +31,7 @@ import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 @RequestMapping("/api/user")
 @CrossOrigin
 public class TransactionController {
-    
+
     @Autowired
     private CustomerServiceImpl customerServiceImpl;
 
@@ -41,35 +42,35 @@ public class TransactionController {
     private TransactionMethods transactionMethods;
 
     @PostMapping("/addTransaction")
-    public ResponseEntity<SuccessResponse> addTransaction(@RequestBody NewTransactionRequest request){
+    public ResponseEntity<SuccessResponse> addTransaction(@RequestBody NewTransactionRequest request) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = this.customerServiceImpl.getCustomerById(request.getCustomerId());
-        if(customer==null){
+        if (customer == null) {
             response.setMessage("customer not present !");
             response.setHttpStatus(HttpStatus.NOT_FOUND);
             response.setStatusCode(200);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        if((request.isGave()&&request.isGot())||(!request.isGave()&&!request.isGot())){
+        if ((request.isGave() && request.isGot()) || (!request.isGave() && !request.isGot())) {
             response.setMessage("please set amount is gave or got ! you can set only one at a time");
             response.setHttpStatus(HttpStatus.NOT_FOUND);
             response.setStatusCode(200);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-    
-        try{
-            if(this.transactionMethods.addNewTransaction(request)){
+
+        try {
+            if (this.transactionMethods.addNewTransaction(request)) {
                 response.setMessage("Add Transaction Successfully !");
                 response.setHttpStatus(HttpStatus.OK);
                 response.setStatusCode(200);
                 return ResponseEntity.of(Optional.of(response));
-            }else{
+            } else {
                 response.setMessage("something went wrong !");
                 response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
                 response.setStatusCode(500);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -78,25 +79,24 @@ public class TransactionController {
     }
 
     @PostMapping("/updateTransaction")
-    public ResponseEntity<SuccessResponse> updateTransaction(@RequestBody UpdateTransaction request){
+    public ResponseEntity<SuccessResponse> updateTransaction(@RequestBody UpdateTransaction request) {
         SuccessResponse response = new SuccessResponse();
         Transaction transaction = this.transactionServiceImpl.getTransactionById(request.getId());
         Customer customer = transaction.getCustomer();
-        if((request.isGave()&&request.isGot())||(!request.isGave()&&!request.isGot())){
+        if ((request.isGave() && request.isGot()) || (!request.isGave() && !request.isGot())) {
             response.setMessage("please set amount is gave or got ! you can set only one at a time");
             response.setHttpStatus(HttpStatus.NOT_FOUND);
             response.setStatusCode(200);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-        try{
+        try {
             this.transactionMethods.updateTransaction(customer.getId(), request);
-            
+
             response.setMessage("transaction update successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -105,17 +105,18 @@ public class TransactionController {
     }
 
     @DeleteMapping("/deleteTransaction/{id}")
-    public ResponseEntity<SuccessResponse> deleteTransaction(@PathVariable("id") long id){
+    public ResponseEntity<SuccessResponse> deleteTransaction(@PathVariable("id") long id) {
         SuccessResponse response = new SuccessResponse();
         Transaction transaction = this.transactionServiceImpl.getTransactionById(id);
         Customer customer = transaction.getCustomer();
-        try{
-            customer.setAmount(customer.getAmount()-transaction.getAmount());
+        try {
+            customer.setAmount(customer.getAmount() - transaction.getAmount());
             customer.setUpdateDate(DateTimeFormat.format(LocalDateTime.now()));
             this.customerServiceImpl.addCustomer(customer);
 
-            for(Transaction transaction2:this.transactionServiceImpl.getAfterTransactions(customer.getId(), transaction.getDate())){
-                transaction2.setBalanceAmount(transaction2.getBalanceAmount()-transaction.getAmount());
+            for (Transaction transaction2 : this.transactionServiceImpl.getAfterTransactions(customer.getId(),
+                    transaction.getDate())) {
+                transaction2.setBalanceAmount(transaction2.getBalanceAmount() - transaction.getAmount());
                 this.transactionServiceImpl.addTransaction(transaction2);
             }
 
@@ -125,8 +126,7 @@ public class TransactionController {
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -135,17 +135,17 @@ public class TransactionController {
     }
 
     @GetMapping("/getCustomersTransaction/{customerId}")
-    public ResponseEntity<?> getCustomersTransaction(@PathVariable("customerId")long id){
-        
-        try{
+    public ResponseEntity<?> getCustomersTransaction(@PathVariable("customerId") long id) {
+
+        try {
             DataResponse response = new DataResponse();
             response.setMessage("get All trasactions successfully !");
             response.setData(this.transactionServiceImpl.getTrasactionsByCustomerId(id));
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
-        }catch(Exception e){
-            SuccessResponse response =new SuccessResponse();
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -154,17 +154,37 @@ public class TransactionController {
     }
 
     @GetMapping("/getTransactions")
-    public ResponseEntity<?> getTransactions(){
-        
-        try{
+    public ResponseEntity<?> getTransactions(@RequestParam(required = false) String query,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+
+        try {
             DataResponse response = new DataResponse();
             response.setMessage("get All trasactions successfully !");
-            response.setData(this.transactionServiceImpl.getAllTrasactions());
+            response.setData(this.transactionServiceImpl.getAllTrasactions(query, startDate, endDate));
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
-        }catch(Exception e){
-            SuccessResponse response =new SuccessResponse();
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+    @GetMapping("/getTransactionReport")
+    public ResponseEntity<?> getTransactionReport(){
+        try {
+            DataResponse response = new DataResponse();
+            response.setMessage("get All trasactions successfully !");
+            response.setData(this.transactionServiceImpl.getTrasactionReport());
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return ResponseEntity.of(Optional.of(response));
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);

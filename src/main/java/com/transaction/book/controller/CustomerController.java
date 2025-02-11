@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
 import com.transaction.book.dto.responseObjects.DataResponse;
 import com.transaction.book.dto.responseObjects.SuccessResponse;
+import com.transaction.book.dto.updateDto.UpdateCustomer;
 import com.transaction.book.entities.Address;
 import com.transaction.book.entities.Customer;
 import com.transaction.book.entities.Transaction;
@@ -45,7 +46,6 @@ public class CustomerController {
     public ResponseEntity<SuccessResponse> addCustomer(@RequestBody CustomerRequestDto request) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = new Customer();
-        Address address = new Address();
         try {
             customer.setName(request.getName());
             customer.setMobileNo(request.getMobileNo());
@@ -68,6 +68,8 @@ public class CustomerController {
                 this.transactionServiceImpl.addTransaction(transaction);
             }
 
+            if(request.getAddress()!=null){
+            Address address = new Address();
             address.setBuildingNO(request.getAddress().getBuildingNo());
             address.setArea(request.getAddress().getArea());
             address.setCity(request.getAddress().getCity());
@@ -75,6 +77,7 @@ public class CustomerController {
             address.setState(request.getAddress().getState());
             address.setCustomer(customer);
             this.addressServiceImpl.addAddress(address);
+            }
             this.customerServiceImpl.addCustomer(customer);
 
             response.setMessage("customer added successfully !");
@@ -138,6 +141,53 @@ public class CustomerController {
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
             SuccessResponse response = new SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/updateCustomer")
+    public ResponseEntity<SuccessResponse> updateCustomer(@RequestBody UpdateCustomer request){
+        SuccessResponse response = new SuccessResponse();
+        Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
+        if(customer==null){
+            response.setMessage("something went wrong !");
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        try {
+            customer.setName(request.getName());
+            customer.setGstinNo(request.getGstinNo());
+            customer.setMobileNo(request.getMobileNo());
+            customer.setReference(request.getReference());
+            if(request.getAddress()!=null){
+                if(customer.getAddress()==null){
+                    Address address = new Address();
+                    address.setArea(request.getAddress().getArea());
+                    address.setBuildingNO(request.getAddress().getBuildingNo());
+                    address.setCity(request.getAddress().getCity());
+                    address.setPincode(request.getAddress().getPincode());
+                    address.setState(request.getAddress().getState());
+                    address.setCustomer(customer);
+                    this.addressServiceImpl.addAddress(address);
+                }else{
+                    Address address = customer.getAddress();
+                    address.setArea(request.getAddress().getArea());
+                    address.setBuildingNO(request.getAddress().getBuildingNo());
+                    address.setCity(request.getAddress().getCity());
+                    address.setPincode(request.getAddress().getPincode());
+                    address.setState(request.getAddress().getState());
+                    this.addressServiceImpl.addAddress(address);
+                }
+            }
+            response.setMessage("delete Customer successfully !");
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return ResponseEntity.of(Optional.of(response));
+        } catch (Exception e) {
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);

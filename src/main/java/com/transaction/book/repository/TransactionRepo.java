@@ -27,13 +27,14 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
                 t.id, t.amount, t.balanceAmount, t.date, t.detail, t.customer.name)
             FROM Transaction t
             WHERE (:query IS NULL OR (t.customer.name LIKE %:query% OR t.customer.mobileNo LIKE %:query%))
-            AND (:startDate IS NULL OR t.date >=:startDate)
-            AND (:endDate IS Null OR t.date <=:endDate)
+            AND (:startDate IS NULL OR t.date >= CONCAT(:startDate, ' 00:00:00'))
+            AND (:endDate IS NULL OR t.date <= CONCAT(:endDate, ' 23:59:59'))
             ORDER BY t.date DESC
             """)
-    List<TransactionResponse> findAllTransactions(@Param("query") String query,
-            @Param("startDate") String startDate,
-            @Param("endDate") String endDate);
+List<TransactionResponse> findAllTransactions(@Param("query") String query,
+        @Param("startDate") String startDate,
+        @Param("endDate") String endDate);
+
 
 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.amount>0")

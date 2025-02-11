@@ -44,7 +44,7 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
             @Param("get") boolean get,
             @Param("settel") boolean settel);
 
-    @Query("SELECT new com.transaction.book.dto.responseDTO.CusotomerFullResponse(c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate, c.address) FROM Customer c WHERE c.id = :id")
+    @Query("SELECT new com.transaction.book.dto.responseDTO.CusotomerFullResponse(c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate, c.address,c.reference) FROM Customer c WHERE c.id = :id")
     CusotomerFullResponse findCustomerResponseById(@Param("id") long id);
 
     

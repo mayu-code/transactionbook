@@ -16,4 +16,5 @@ public class CusotomerFullResponse {
     private String dueDate;
     private String updateDate;
     private Address address;
+    private String reference;
 }

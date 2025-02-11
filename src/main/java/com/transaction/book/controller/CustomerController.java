@@ -183,7 +183,7 @@ public class CustomerController {
                     this.addressServiceImpl.addAddress(address);
                 }
             }
-            response.setMessage("delete Customer successfully !");
+            response.setMessage("Customer Updated successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));

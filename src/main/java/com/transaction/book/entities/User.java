@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.transaction.book.constants.Role;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,7 +30,9 @@ public class User implements UserDetails{
     private String password;
     private String email;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String fcmToken;
+
 
     private boolean approved;
 

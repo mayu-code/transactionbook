@@ -84,12 +84,19 @@ public class UserController {
     }
 
     @PostMapping("/sendFCMToken")
-    public ResponseEntity<SuccessResponse> setFCMToken(@RequestHeader("Authorization")String jwt,@RequestParam(required = true)String token){
+    public ResponseEntity<SuccessResponse> setFCMToken(@RequestHeader("Authorization")String jwt,@RequestParam(required = false)String token){
         SuccessResponse response = new SuccessResponse();
         User user = this.userServiceImpl.getUserByJwt(jwt);
         try{
+            if(token==null){
+                response.setMessage("something went wrong !");
+                response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+                response.setStatusCode(500);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
             user.setFcmToken(token);
             this.userServiceImpl.registerUser(user);
+
             response.setMessage("User profile get successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);

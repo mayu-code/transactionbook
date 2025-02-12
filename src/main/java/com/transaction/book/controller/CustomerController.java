@@ -70,7 +70,7 @@ public class CustomerController {
 
             if(request.getAddress()!=null){
             Address address = new Address();
-            address.setBuildingNO(request.getAddress().getBuildingNo());
+            address.setBuildingNo(request.getAddress().getBuildingNo());
             address.setArea(request.getAddress().getArea());
             address.setCity(request.getAddress().getCity());
             address.setPincode(request.getAddress().getPincode());
@@ -167,7 +167,7 @@ public class CustomerController {
                 if(customer.getAddress()==null){
                     Address address = new Address();
                     address.setArea(request.getAddress().getArea());
-                    address.setBuildingNO(request.getAddress().getBuildingNo());
+                    address.setBuildingNo(request.getAddress().getBuildingNo());
                     address.setCity(request.getAddress().getCity());
                     address.setPincode(request.getAddress().getPincode());
                     address.setState(request.getAddress().getState());
@@ -176,7 +176,7 @@ public class CustomerController {
                 }else{
                     Address address = customer.getAddress();
                     address.setArea(request.getAddress().getArea());
-                    address.setBuildingNO(request.getAddress().getBuildingNo());
+                    address.setBuildingNo(request.getAddress().getBuildingNo());
                     address.setCity(request.getAddress().getCity());
                     address.setPincode(request.getAddress().getPincode());
                     address.setState(request.getAddress().getState());

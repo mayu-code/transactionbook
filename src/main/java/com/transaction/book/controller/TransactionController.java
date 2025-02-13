@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import com.transaction.book.dto.updateDto.UpdateTransaction;
 import com.transaction.book.entities.Customer;
 import com.transaction.book.entities.Transaction;
 import com.transaction.book.helper.DateTimeFormat;
+import com.transaction.book.helper.ExcelFormat;
 import com.transaction.book.helper.PdfFormat;
 import com.transaction.book.services.logicService.TransactionMethods;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
@@ -201,12 +203,13 @@ public class TransactionController {
 
     @GetMapping("/downloadReport")
     public ResponseEntity<?> downloadPDF(
-            @RequestParam(required = false) long customerId,
+            @RequestParam(required = true) long customerId,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
-            
-        List<TransactionResponse> transactions =  this.transactionServiceImpl.getAllTrasactions(customerId, startDate, endDate);
-        if(transactions==null){
+
+        List<TransactionResponse> transactions = this.transactionServiceImpl.getAllTrasactions(customerId, startDate,
+                endDate);
+        if (transactions == null) {
             SuccessResponse response = new SuccessResponse();
             response.setHttpStatus(HttpStatus.NOT_FOUND);
             response.setStatusCode(404);
@@ -221,5 +224,28 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .headers(headers)
                 .body(pdfBytes);
+    }
+
+    @GetMapping("/downloadExcelReport")
+    public ResponseEntity<?> exportExcelReports(@RequestParam(required = false) String query,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            byte[] excelBytes = ExcelFormat.generateExcel(this.transactionServiceImpl.getAllTrasactions(query,startDate,endDate));
+
+            ByteArrayResource resource = new ByteArrayResource(excelBytes);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=students.xlsx")
+                    .header(HttpHeaders.CONTENT_TYPE,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(resource);
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

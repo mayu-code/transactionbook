@@ -1,5 +1,6 @@
 package com.transaction.book.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,7 +36,7 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
                     (:gave = true AND c.amount > 0) OR
                     (:get = true AND c.amount < 0) OR
                     (:settel = true AND c.amount = 0) OR
-                    (:gave = false AND :get = false AND :settel = false)  
+                    (:gave = false AND :get = false AND :settel = false)
                 )
                 ORDER BY c.updateDate DESC
             """)
@@ -47,6 +48,12 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
     @Query("SELECT new com.transaction.book.dto.responseDTO.CusotomerFullResponse(c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate, c.address,c.reference) FROM Customer c WHERE c.id = :id")
     CusotomerFullResponse findCustomerResponseById(@Param("id") long id);
 
-    
+    @Query("""
+                SELECT new com.transaction.book.dto.responseDTO.CustomerResponse(
+                    c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate)
+                FROM Customer c
+                WHERE (c.dueDate IS NULL OR c.dueDate=:today)
+            """)
+    List<CustomerResponse> findTodaysDueDateCusotmers(@Param("today") LocalDate today);
 
 }

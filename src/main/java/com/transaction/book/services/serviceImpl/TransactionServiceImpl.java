@@ -65,4 +65,9 @@ public class TransactionServiceImpl implements TransactionService{
         transactionReport.setYouGot(this.transactionRepo.totalYouGot());
         return transactionReport;
     }
+
+    @Override
+    public List<TransactionResponse> getAllTrasactions(long id, String startDate, String endDate) {
+        return this.transactionRepo.findAllTransactions(id, startDate, endDate);
+    }
 }

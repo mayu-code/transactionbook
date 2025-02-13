@@ -1,5 +1,6 @@
 package com.transaction.book.services.serviceImpl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
 import com.transaction.book.dto.responseDTO.CustomerResponse;
+import com.transaction.book.dto.responseDTO.DueDate;
 import com.transaction.book.entities.Customer;
 import com.transaction.book.repository.CustomerRepo;
 import com.transaction.book.services.serviceInterface.CustomerService;
@@ -61,6 +63,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public List<CustomerResponse> findAllCustomerResponse(String query,boolean gave,boolean get,boolean settel) {
         return this.customerRepo.findAllCustomerResponse(query,gave,get,settel);
+    }
+
+    @Override
+    public DueDate getDueDateCustomer() {
+        DueDate dueDate = new DueDate();
+        dueDate.setTodaysDueDate(this.customerRepo.findTodaysDueDateCusotmers(LocalDate.now()));
+        dueDate.setTomorrowDueDate(this.customerRepo.findTodaysDueDateCusotmers(LocalDate.now().plusDays(1)));
+        return dueDate;
     }
 
 }

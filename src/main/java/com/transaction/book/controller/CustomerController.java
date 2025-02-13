@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
+import com.transaction.book.dto.requestDTO.DueDateRequest;
 import com.transaction.book.dto.responseObjects.DataResponse;
 import com.transaction.book.dto.responseObjects.SuccessResponse;
 import com.transaction.book.dto.updateDto.UpdateCustomer;
@@ -135,7 +136,7 @@ public class CustomerController {
         try {
             DataResponse response = new DataResponse();
             response.setData(this.customerServiceImpl.getCustomerResponseById(id));
-            response.setMessage("delete Customer successfully !");
+            response.setMessage("Customer get successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
@@ -194,4 +195,42 @@ public class CustomerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/setDueDate")
+    public ResponseEntity<SuccessResponse> setDueDate(@RequestBody DueDateRequest request){
+        SuccessResponse response = new SuccessResponse();
+        try {
+            Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
+            customer.setDueDate(request.getDueDate());
+            this.customerServiceImpl.addCustomer(customer);
+            response.setMessage("Due Date set successfully !");
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return ResponseEntity.of(Optional.of(response));
+        } catch (Exception e) {
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/getCustomersOnDueDate")
+    public ResponseEntity<?> setDueDate(){
+        try {
+            DataResponse response = new DataResponse();
+            response.setData(this.customerServiceImpl.getDueDateCustomer());
+            response.setMessage("Due Date set successfully !");
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return ResponseEntity.of(Optional.of(response));
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+   
 }

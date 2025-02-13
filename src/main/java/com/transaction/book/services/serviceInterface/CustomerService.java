@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
 import com.transaction.book.dto.responseDTO.CustomerResponse;
+import com.transaction.book.dto.responseDTO.DueDate;
 import com.transaction.book.entities.Customer;
 
 public interface CustomerService {
@@ -17,4 +18,6 @@ public interface CustomerService {
 
     CusotomerFullResponse getCustomerResponseById(long id);
     List<CustomerResponse> findAllCustomerResponse(String query,boolean gave,boolean get,boolean settel);
+
+    DueDate getDueDateCustomer();
 }

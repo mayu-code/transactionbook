@@ -1,9 +1,11 @@
 package com.transaction.book.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,12 +19,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.transaction.book.dto.requestDTO.NewTransactionRequest;
+import com.transaction.book.dto.responseDTO.TransactionResponse;
 import com.transaction.book.dto.responseObjects.DataResponse;
 import com.transaction.book.dto.responseObjects.SuccessResponse;
 import com.transaction.book.dto.updateDto.UpdateTransaction;
 import com.transaction.book.entities.Customer;
 import com.transaction.book.entities.Transaction;
 import com.transaction.book.helper.DateTimeFormat;
+import com.transaction.book.helper.PdfFormat;
 import com.transaction.book.services.logicService.TransactionMethods;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
@@ -40,6 +44,9 @@ public class TransactionController {
 
     @Autowired
     private TransactionMethods transactionMethods;
+
+    @Autowired
+    private PdfFormat pdfFromat;
 
     @PostMapping("/addTransaction")
     public ResponseEntity<SuccessResponse> addTransaction(@RequestBody NewTransactionRequest request) {
@@ -173,9 +180,9 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+
     @GetMapping("/getTransactionReport")
-    public ResponseEntity<?> getTransactionReport(){
+    public ResponseEntity<?> getTransactionReport() {
         try {
             DataResponse response = new DataResponse();
             response.setMessage("get All trasactions successfully !");
@@ -190,5 +197,29 @@ public class TransactionController {
             response.setStatusCode(500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @GetMapping("/downloadReport")
+    public ResponseEntity<?> downloadPDF(
+            @RequestParam(required = false) long customerId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+            
+        List<TransactionResponse> transactions =  this.transactionServiceImpl.getAllTrasactions(customerId, startDate, endDate);
+        if(transactions==null){
+            SuccessResponse response = new SuccessResponse();
+            response.setHttpStatus(HttpStatus.NOT_FOUND);
+            response.setStatusCode(404);
+            response.setMessage("No transactions found !");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        byte[] pdfBytes = pdfFromat.generateTransactionStatement(transactions);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=statement.pdf");
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .headers(headers)
+                .body(pdfBytes);
     }
 }

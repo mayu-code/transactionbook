@@ -19,5 +19,6 @@ public interface TransactionService {
     Transaction findPreviousTransaction(long id,String date);
 
     List<TransactionResponse> getAllTrasactions(String query,String startDate,String endDate);
+    List<TransactionResponse> getAllTrasactions(long id,String startDate,String endDate);
 
 }

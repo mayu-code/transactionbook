@@ -37,8 +37,8 @@ public class PdfFormat {
             document.add(title);
 
             // Paragraph subtitle = new Paragraph("\n")
-            //         .setFontSize(12)
-            //         .setTextAlignment(TextAlignment.CENTER);
+            // .setFontSize(12)
+            // .setTextAlignment(TextAlignment.CENTER);
             // document.add(subtitle);
 
             document.add(new Paragraph("\n"));
@@ -125,8 +125,7 @@ public class PdfFormat {
                 .setTextAlignment(TextAlignment.CENTER);
         if (isRed) {
             cell.setFontColor(new DeviceRgb(255, 0, 0));
-        }
-        else{
+        } else {
             cell.setFontColor(new DeviceRgb(0, 255, 0));
         }
         table.addCell(cell);
@@ -136,9 +135,10 @@ public class PdfFormat {
     // column
     private void addTransactionRow(Table table, String date, String detail, String debit, String credit,
             String balance) {
-        table.addCell(new Cell().add(new Paragraph(date)).setTextAlignment(TextAlignment.CENTER));
+        table.addCell(new Cell().add(new Paragraph(date != null ? date : " ")).setTextAlignment(TextAlignment.CENTER));
 
-        table.addCell(new Cell().add(new Paragraph(detail)).setTextAlignment(TextAlignment.CENTER));
+        table.addCell(new Cell().add(new Paragraph(detail != null ? detail : " ")).setTextAlignment(TextAlignment.CENTER));
+
         // Debit column with red background
         Cell debitCell = new Cell().add(new Paragraph(debit)).setTextAlignment(TextAlignment.RIGHT);
         if (!debit.isEmpty()) {

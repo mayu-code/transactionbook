@@ -17,6 +17,7 @@ public interface CustomerService {
     double getToalGaveAmount();
 
     CusotomerFullResponse getCustomerResponseById(long id);
+    CusotomerFullResponse getCustomerResponseByName(String name);
     List<CustomerResponse> findAllCustomerResponse(String query,boolean gave,boolean get,boolean settel);
 
     DueDate getDueDateCustomer();

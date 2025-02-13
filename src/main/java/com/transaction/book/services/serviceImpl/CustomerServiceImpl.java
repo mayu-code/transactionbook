@@ -74,4 +74,9 @@ public class CustomerServiceImpl implements CustomerService {
         return dueDate;
     }
 
+    @Override
+    public CusotomerFullResponse getCustomerResponseByName(String name) {
+        return this.customerRepo.findCustomerResponseByName(name);
+    }
+
 }

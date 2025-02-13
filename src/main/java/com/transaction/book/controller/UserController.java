@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/getDashboard")
-    public ResponseEntity<?> getDashboard(){
+    public ResponseEntity<Object> getDashboard(){
         try{
             Dashboard dashboard = new Dashboard();
             try{

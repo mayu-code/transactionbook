@@ -52,8 +52,8 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
                 SELECT new com.transaction.book.dto.responseDTO.CustomerResponse(
                     c.id, c.name, c.mobileNo, c.gstinNo, c.amount, c.dueDate, c.updateDate)
                 FROM Customer c
-                WHERE (c.dueDate IS NULL OR c.dueDate=:today)
+                WHERE (c.dueDate=:today)
             """)
-    List<CustomerResponse> findTodaysDueDateCusotmers(@Param("today") LocalDate today);
+    List<CustomerResponse> findTodaysDueDateCusotmers(@Param("today") String today);
 
 }

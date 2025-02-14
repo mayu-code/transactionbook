@@ -10,10 +10,10 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.io.InputStream;
 
-// @Configuration
+@Configuration
 public class FirebaseConfig {
 
-    // @Bean
+    @Bean
     public FirebaseApp initializeFirebase() throws IOException {
         // Load the Firebase JSON file from classpath
         InputStream serviceAccount = new ClassPathResource("transactionbook-4bb66-firebase-adminsdk-fbsvc-9066517923.json").getInputStream();   

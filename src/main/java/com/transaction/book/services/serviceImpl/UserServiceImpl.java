@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User getUserById(long id) {
-        return this.userRepo.findById(id).get();
+        return this.userRepo.findById(id);
     }
 
     @Override
@@ -54,7 +54,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteApprovalRequest(long id) {
-        this.userRepo.deleteById(id);
+        User user = this.userRepo.findById(id);
+        user.setDeleteFlag(true);
+        this.userRepo.save(user);
         return;
     }
 

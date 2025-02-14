@@ -10,6 +10,7 @@ import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
 import com.transaction.book.dto.responseDTO.CustomerResponse;
 import com.transaction.book.dto.responseDTO.DueDate;
 import com.transaction.book.entities.Customer;
+import com.transaction.book.entities.Transaction;
 import com.transaction.book.repository.CustomerRepo;
 import com.transaction.book.services.serviceInterface.CustomerService;
 
@@ -18,6 +19,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepo customerRepo;
+
+    @Autowired
+    private TransactionServiceImpl transactionServiceImpl;
 
     @Override
     public Customer addCustomer(Customer customer) {
@@ -31,7 +35,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer getCustomerById(long id) {
-        return this.customerRepo.findById(id).get();
+        return this.customerRepo.findById(id);
     }
 
     @Override
@@ -41,7 +45,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public void deleteCusotmer(long id) {
-        this.customerRepo.deleteById(id);
+        Customer customer = this.customerRepo.findById(id);
+        for(Transaction transaction:customer.getTransactions()){
+                 this.transactionServiceImpl.deleteTransaction(transaction.getId());    
+        }
+        customer.setDeleteFlag(true);
+        this.customerRepo.save(customer);
         return;
     }
 
@@ -72,6 +81,11 @@ public class CustomerServiceImpl implements CustomerService {
         dueDate.setTodaysDueDate(this.customerRepo.findTodaysDueDateCusotmers(String .valueOf(LocalDate.now())));
         dueDate.setTomorrowDueDate(this.customerRepo.findTodaysDueDateCusotmers(String.valueOf(LocalDate.now().plusDays(1))));
         return dueDate;
+    }
+
+    @Override
+    public CusotomerFullResponse getCustomerResponseByName(String name) {
+        return this.customerRepo.findCustomerResponseByName(name);
     }
 
 }

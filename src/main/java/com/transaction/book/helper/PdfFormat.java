@@ -9,37 +9,61 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
+import com.transaction.book.dto.responseDTO.CustomerResponse;
 import com.transaction.book.dto.responseDTO.TransactionResponse;
+import com.transaction.book.entities.Customer;
+import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class PdfFormat {
+
+    @Autowired
+    private CustomerServiceImpl customerServiceImpl;
 
     public byte[] generateTransactionStatement(List<TransactionResponse> transactions) {
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a | dd MMM ''yy");
         String formattedDateTime = now.format(formatter);
+
+        CusotomerFullResponse customer = this.customerServiceImpl
+                .getCustomerResponseByName(transactions.get(0).getCustomerName());
+
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(out);
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
 
-            Paragraph title = new Paragraph(transactions.get(0).getCustomerName())
+            Paragraph title = new Paragraph(transactions.get(0).getCustomerName() + " Statement\n")
                     .setFontSize(18)
                     .setTextAlignment(TextAlignment.CENTER);
             document.add(title);
 
-            // Paragraph subtitle = new Paragraph("\n")
-            // .setFontSize(12)
-            // .setTextAlignment(TextAlignment.CENTER);
-            // document.add(subtitle);
+            // Ensure the list is not empty before accessing elements
+            if (!transactions.isEmpty()) {
+                String startDate = formatedDate(transactions.get(0).getDate());
+                String endDate = formatedDate(transactions.get(transactions.size() - 1).getDate());
+
+                Paragraph subtitle = new Paragraph(
+                        "Phone Number :-" + customer.getMobileNo() + "\n( " + startDate + " - " + endDate + " )")
+                        .setFontSize(12)
+                        .setTextAlignment(TextAlignment.CENTER);
+
+                document.add(subtitle);
+            }
 
             document.add(new Paragraph("\n"));
 
@@ -61,12 +85,14 @@ public class PdfFormat {
                 }
             }
 
-            addSummaryCell(summaryTable, "₹" + totalDebit);
-            addSummaryCell(summaryTable, "₹" + totalCredit);
-            if (totalCredit + totalDebit > 0) {
+            addSummaryCell(summaryTable, "₹" + totalDebit, true);
+            addSummaryCell(summaryTable, "₹" + totalCredit, false);
+            if (totalCredit + totalDebit < 0) {
+                addSummaryCell(summaryTable, "₹" + (totalCredit + totalDebit), true);
+            } else if (totalCredit + totalDebit > 0) {
                 addSummaryCell(summaryTable, "₹" + (totalCredit + totalDebit), false);
             } else {
-                addSummaryCell(summaryTable, "₹" + (totalCredit + totalDebit), true);
+                addSummaryCell(summaryTable, "₹" + (totalCredit + totalDebit));
             }
 
             document.add(summaryTable);
@@ -90,7 +116,8 @@ public class PdfFormat {
                 } else {
                     debit = String.valueOf(transaction.getAmount());
                 }
-                addTransactionRow(transactionTable, transaction.getDate(), transaction.getDetail(), debit, credit,
+                addTransactionRow(transactionTable, formatedDate(transaction.getDate()), transaction.getDetail(), debit,
+                        credit,
                         String.valueOf(transaction.getBalanceAmount()));
             }
 
@@ -117,7 +144,9 @@ public class PdfFormat {
     }
 
     private void addSummaryCell(Table table, String text) {
-        addSummaryCell(table, text, false);
+        Cell cell = new Cell().add(new Paragraph(text))
+                .setTextAlignment(TextAlignment.CENTER);
+        table.addCell(cell);
     }
 
     private void addSummaryCell(Table table, String text, boolean isRed) {
@@ -137,7 +166,8 @@ public class PdfFormat {
             String balance) {
         table.addCell(new Cell().add(new Paragraph(date != null ? date : " ")).setTextAlignment(TextAlignment.CENTER));
 
-        table.addCell(new Cell().add(new Paragraph(detail != null ? detail : " ")).setTextAlignment(TextAlignment.CENTER));
+        table.addCell(
+                new Cell().add(new Paragraph(detail != null ? detail : " ")).setTextAlignment(TextAlignment.CENTER));
 
         // Debit column with red background
         Cell debitCell = new Cell().add(new Paragraph(debit)).setTextAlignment(TextAlignment.RIGHT);
@@ -154,5 +184,16 @@ public class PdfFormat {
         table.addCell(creditCell);
 
         table.addCell(new Cell().add(new Paragraph(balance)).setTextAlignment(TextAlignment.RIGHT));
+    }
+
+    public static String formatedDate(String str) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = inputFormat.parse(str);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MMMM-yyyy", Locale.ENGLISH);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            return " ";
+        }
     }
 }

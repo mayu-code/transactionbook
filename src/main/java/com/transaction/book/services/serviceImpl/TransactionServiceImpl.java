@@ -5,10 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.transaction.book.dto.responseDTO.TransactionReport;
 import com.transaction.book.dto.responseDTO.TransactionResponse;
 import com.transaction.book.entities.Transaction;
-import com.transaction.book.repository.CustomerRepo;
 import com.transaction.book.repository.TransactionRepo;
 import com.transaction.book.services.serviceInterface.TransactionService;
 
@@ -18,9 +16,6 @@ public class TransactionServiceImpl implements TransactionService{
     @Autowired
     private TransactionRepo transactionRepo;
 
-    @Autowired
-    private CustomerRepo customerRepo;
-
     @Override
     public Transaction addTransaction(Transaction transaction) {
         return this.transactionRepo.save(transaction);
@@ -28,13 +23,15 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     public void deleteTransaction(long id) {
-        this.transactionRepo.deleteById(id);
+        Transaction transaction = this.transactionRepo.findById(id);
+        transaction.setDeleteFlag(true);
+        this.transactionRepo.save(transaction);
         return;
     }
 
     @Override
     public Transaction getTransactionById(long id) {
-        return this.transactionRepo.findById(id).get();
+        return this.transactionRepo.findById(id);
     }
 
     @Override
@@ -55,15 +52,6 @@ public class TransactionServiceImpl implements TransactionService{
     @Override
     public List<TransactionResponse> getAllTrasactions(String query,String startDate,String endDate) {
         return this.transactionRepo.findAllTransactions(query,startDate,endDate);
-    }
-
-    @Override
-    public TransactionReport getTrasactionReport() {
-        TransactionReport transactionReport = new TransactionReport();
-        transactionReport.setNetBalance(this.customerRepo.getNetBalance());
-        transactionReport.setYouGave(this.transactionRepo.totalYouGave());
-        transactionReport.setYouGot(this.transactionRepo.totalYouGot());
-        return transactionReport;
     }
 
     @Override

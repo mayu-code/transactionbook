@@ -256,6 +256,7 @@ public ResponseEntity<SuccessResponse> logoutUser(@RequestHeader(name = "Authori
         JwtToken jwtToken = this.jwtTokenServiceImpl.getTokenByToken(jwt);
         if (jwtToken != null) {
             jwtToken.setActive(false);
+            jwtToken.setLogoutAt(String.valueOf(Instant.now()));
             this.jwtTokenServiceImpl.addJwtToken(jwtToken);
         }
         

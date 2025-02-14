@@ -32,10 +32,10 @@ public class JwtValidator extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String jwt = request.getHeader(JwtConstants.JWT_HEADER);
-        JwtToken token = this.jwtTokenServiceImpl.getTokenByToken(jwt.substring(7));
-
+        
         if (jwt != null) {
             try {
+                JwtToken token = this.jwtTokenServiceImpl.getTokenByToken(jwt.substring(7));
                 if(!token.isActive()){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");

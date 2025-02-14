@@ -28,6 +28,8 @@ import com.transaction.book.jwtSecurity.JwtProvider;
 import com.transaction.book.services.serviceImpl.OtpServiceImpl;
 import com.transaction.book.services.serviceImpl.UserServiceImpl;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
@@ -43,7 +45,7 @@ public class AuthController {
     private CustomUserDetail customUserDetail;
 
     @PostMapping("/registerUser")
-    public ResponseEntity<SuccessResponse> registerUser(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<SuccessResponse> registerUser(@Valid @RequestBody RegistrationRequest request) {
         SuccessResponse response = new SuccessResponse();
         User user = this.userServiceImpl.getUserByEmail(request.getEmail());
         if (user != null) {
@@ -165,7 +167,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> loginUser(@Valid @RequestBody LoginRequest request) {
         SuccessResponse response = new SuccessResponse();
         User user = this.userServiceImpl.getUserByEmail(request.getEmail());
         if (user == null) {

@@ -29,6 +29,8 @@ import com.transaction.book.services.serviceImpl.AddressServiceImpl;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin
@@ -44,7 +46,7 @@ public class CustomerController {
     private TransactionServiceImpl transactionServiceImpl;
 
     @PostMapping("/addCustomer")
-    public ResponseEntity<SuccessResponse> addCustomer(@RequestBody CustomerRequestDto request) {
+    public ResponseEntity<SuccessResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = new Customer();
         try {
@@ -150,7 +152,7 @@ public class CustomerController {
     }
 
     @PostMapping("/updateCustomer")
-    public ResponseEntity<SuccessResponse> updateCustomer(@RequestBody UpdateCustomer request){
+    public ResponseEntity<SuccessResponse> updateCustomer(@Valid @RequestBody UpdateCustomer request){
         SuccessResponse response = new SuccessResponse();
         Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
         if(customer==null){
@@ -197,7 +199,7 @@ public class CustomerController {
     }
 
     @PostMapping("/setDueDate")
-    public ResponseEntity<SuccessResponse> setDueDate(@RequestBody DueDateRequest request){
+    public ResponseEntity<SuccessResponse> setDueDate(@Valid @RequestBody DueDateRequest request){
         SuccessResponse response = new SuccessResponse();
         try {
             Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
@@ -216,7 +218,7 @@ public class CustomerController {
     }
 
     @GetMapping("/getCustomersOnDueDate")
-    public ResponseEntity<?> setDueDate(){
+    public ResponseEntity<?> getCustomersOnDueDate(){
         try {
             DataResponse response = new DataResponse();
             response.setData(this.customerServiceImpl.getDueDateCustomer());

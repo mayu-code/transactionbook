@@ -33,6 +33,8 @@ import com.transaction.book.services.logicService.TransactionMethods;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin
@@ -51,7 +53,7 @@ public class TransactionController {
     private PdfFormat pdfFromat;
 
     @PostMapping("/addTransaction")
-    public ResponseEntity<SuccessResponse> addTransaction(@RequestBody NewTransactionRequest request) {
+    public ResponseEntity<SuccessResponse> addTransaction(@Valid @RequestBody NewTransactionRequest request) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = this.customerServiceImpl.getCustomerById(request.getCustomerId());
         if (customer == null) {
@@ -88,7 +90,7 @@ public class TransactionController {
     }
 
     @PostMapping("/updateTransaction")
-    public ResponseEntity<SuccessResponse> updateTransaction(@RequestBody UpdateTransaction request) {
+    public ResponseEntity<SuccessResponse> updateTransaction(@Valid @RequestBody UpdateTransaction request) {
         SuccessResponse response = new SuccessResponse();
         Transaction transaction = this.transactionServiceImpl.getTransactionById(request.getId());
         Customer customer = transaction.getCustomer();

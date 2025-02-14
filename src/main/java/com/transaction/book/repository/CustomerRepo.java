@@ -17,7 +17,7 @@ public interface CustomerRepo extends JpaRepository<Customer, Long> {
     @Query(value = "SELECT * FROM Customer WHERE mobileNo=:mobileNo AND delete_flag=false",nativeQuery = true)
     Customer findByMobileNo(String mobileNo);
 
-    @Query(value = "SELECT * FROM Customer WHERE id=:id AND delelte_flag=false",nativeQuery = true)
+    @Query(value = "SELECT * FROM Customer WHERE id=:id AND delete_flag=false",nativeQuery = true)
     Customer findById(long id);
 
     @Query("SELECT c FROM Customer c WHERE c.deleteFlag=false ORDER BY c.updateDate DESC")

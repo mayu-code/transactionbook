@@ -29,7 +29,7 @@ public class User implements UserDetails{
     private String mobileNo;
     private String password;
     private String email;
-    private boolean deleteFlag;
+    private boolean deleteFlag=false;
 
     @Column(columnDefinition = "LONGTEXT")
     private String fcmToken;

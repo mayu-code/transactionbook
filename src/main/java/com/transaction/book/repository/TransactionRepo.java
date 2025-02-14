@@ -13,8 +13,8 @@ import com.transaction.book.entities.Transaction;
 @Repository
 public interface TransactionRepo extends JpaRepository<Transaction, Long> {
 
-    @Query(value = "SELECT * FROM Transaction WHERE delete_flag=false",nativeQuery = true)
-    Transaction findById(long id);
+    @Query(value = "SELECT * FROM Transaction WHERE id=:id AND delete_flag=false",nativeQuery = true)
+    Transaction findById(@Param("id")long id);
 
     @Query("SELECT t FROM Transaction t WHERE t.customer.id=:id AND deleteFlag=false  ORDER BY t.date DESC")
     List<Transaction> findByCustomerId(@Param("id") long id);
@@ -22,7 +22,7 @@ public interface TransactionRepo extends JpaRepository<Transaction, Long> {
     @Query("SELECT t FROM Transaction t WHERE t.customer.id=:customerId AND t.date>:date AND t.date IS NOT NULL AND deleteFlag=false ORDER BY t.date")
     List<Transaction> findAfterTransactions(@Param("customerId") long customerId, @Param("date") String date);
 
-    @Query(value = "SELECT * FROM transaction WHERE customer_id = :customerId AND date IS NOT NULL AND deteleFlag = false AND date < :date ORDER BY date DESC LIMIT 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM transaction WHERE customer_id = :customerId AND (date IS NOT NULL) AND delete_flag = false AND date < :date ORDER BY date DESC LIMIT 1", nativeQuery = true)
     Transaction findPreviousTransaction(@Param("customerId") long customerId, @Param("date") String date);
 
         @Query("""

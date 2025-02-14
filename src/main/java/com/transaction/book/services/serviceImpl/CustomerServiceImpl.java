@@ -12,6 +12,7 @@ import com.transaction.book.dto.responseDTO.DueDate;
 import com.transaction.book.entities.Customer;
 import com.transaction.book.entities.Transaction;
 import com.transaction.book.repository.CustomerRepo;
+import com.transaction.book.repository.TransactionRepo;
 import com.transaction.book.services.serviceInterface.CustomerService;
 
 @Service
@@ -21,7 +22,7 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerRepo customerRepo;
 
     @Autowired
-    private TransactionServiceImpl transactionServiceImpl;
+    private TransactionRepo transactionRepo;
 
     @Override
     public Customer addCustomer(Customer customer) {
@@ -46,9 +47,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteCusotmer(long id) {
         Customer customer = this.customerRepo.findById(id);
-        for(Transaction transaction:customer.getTransactions()){
-                 this.transactionServiceImpl.deleteTransaction(transaction.getId());    
+        if(customer.getTransactions()!=null){
+            for(Transaction transaction:customer.getTransactions()){
+                transaction.setDeleteFlag(true);
+                this.transactionRepo.save(transaction);  
+            }
+            System.out.println("ok");
         }
+        System.out.println("ok");
         customer.setDeleteFlag(true);
         this.customerRepo.save(customer);
         return;

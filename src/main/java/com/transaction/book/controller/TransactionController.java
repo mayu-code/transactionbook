@@ -182,25 +182,6 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    @GetMapping("/getTransactionReport")
-    public ResponseEntity<?> getTransactionReport() {
-        try {
-            DataResponse response = new DataResponse();
-            response.setMessage("get All trasactions successfully !");
-            response.setData(this.transactionServiceImpl.getTrasactionReport());
-            response.setHttpStatus(HttpStatus.OK);
-            response.setStatusCode(200);
-            return ResponseEntity.of(Optional.of(response));
-        } catch (Exception e) {
-            SuccessResponse response = new SuccessResponse();
-            response.setMessage(e.getMessage());
-            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            response.setStatusCode(500);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
     @GetMapping("/downloadReport")
     public ResponseEntity<?> downloadPDF(
             @RequestParam(required = true) long customerId,

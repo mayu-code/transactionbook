@@ -21,6 +21,7 @@ public class Transaction {
     private double balanceAmount;
     private String date;
     private String detail;
+    private boolean deleteFlag;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

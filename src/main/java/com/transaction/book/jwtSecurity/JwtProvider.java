@@ -1,19 +1,37 @@
 package com.transaction.book.jwtSecurity;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.security.core.Authentication;
+
+import com.transaction.book.constants.ClientType;
+import com.transaction.book.entities.JwtToken;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 public class JwtProvider {
+
     public static SecretKey key = Keys.hmacShaKeyFor(JwtConstants.API_KEY.getBytes());
 
-    public static String generateJwt(Authentication authentication){
+    public static JwtToken generateJwt(Authentication authentication,ClientType clientType){
+        JwtToken jwtToken = new JwtToken();
+        Long expirationTime=0L;
+        if(clientType.equals(ClientType.WEB)){
+            expirationTime = 24*60*60*1000L;
+        }
+        else if(clientType.equals(ClientType.MOBILE)){
+            expirationTime = 90*24*60*60*1000L;
+        }
+        else{
+            expirationTime = 60*60*1000L;
+        }
+
         String jwt = Jwts.builder()
                     .setIssuer("ok").setIssuedAt(new Date())
                     .setExpiration(new Date(new Date().getTime()+84600000))
@@ -21,7 +39,10 @@ public class JwtProvider {
                     .claim("role", authentication.getAuthorities().toArray()[0].toString())
                     .signWith(key)
                     .compact();
-        return jwt;         
+        jwtToken.setToken(jwt);
+        jwtToken.setExpiration(expirationTime);
+            
+        return jwtToken;
     }
 
     public static String getEmailByJwt(String jwt){

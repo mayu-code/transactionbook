@@ -1,5 +1,9 @@
 package com.transaction.book.controller;
 
+import java.security.PublicKey;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,9 +27,11 @@ import com.transaction.book.dto.requestDTO.LoginRequest;
 import com.transaction.book.dto.requestDTO.RegistrationRequest;
 import com.transaction.book.dto.responseObjects.LoginResponse;
 import com.transaction.book.dto.responseObjects.SuccessResponse;
+import com.transaction.book.entities.JwtToken;
 import com.transaction.book.entities.User;
 import com.transaction.book.jwtSecurity.CustomUserDetail;
 import com.transaction.book.jwtSecurity.JwtProvider;
+import com.transaction.book.services.serviceImpl.JwtTokenServiceImpl;
 import com.transaction.book.services.serviceImpl.OtpServiceImpl;
 import com.transaction.book.services.serviceImpl.UserServiceImpl;
 
@@ -43,6 +50,9 @@ public class AuthController {
 
     @Autowired
     private CustomUserDetail customUserDetail;
+
+    @Autowired
+    private JwtTokenServiceImpl jwtTokenServiceImpl;
 
     @PostMapping("/registerUser")
     public ResponseEntity<SuccessResponse> registerUser(@Valid @RequestBody RegistrationRequest request) {
@@ -73,7 +83,7 @@ public class AuthController {
         }
         try {
             this.userServiceImpl.registerUser(newUser);
-            response.setMessage("user added successfully !");
+            response.setMessage("you are registerd successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
@@ -190,17 +200,28 @@ public class AuthController {
             response.setStatusCode(500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-        Authentication authentication = authenticate(user.getEmail(), request.getPassword());
-        String role = user.getRole().toString();
-        String token = JwtProvider.generateJwt(authentication);
 
         try {
+
+            Authentication authentication = authenticate(user.getEmail(), request.getPassword());
+            String role = user.getRole().toString();
+            JwtToken token = JwtProvider.generateJwt(authentication,request.getClientType());
+
+            JwtToken jwtToken = new JwtToken();
+            jwtToken.setClientType(request.getClientType());
+            jwtToken.setIssuedAt(String.valueOf(Instant.now()));
+            jwtToken.setUser(user);
+            jwtToken.setExpiration(token.getExpiration());
+            jwtToken.setToken(token.getToken());         
+            jwtTokenServiceImpl.addJwtToken(jwtToken);
+
             LoginResponse response2 = new LoginResponse();
             response2.setRole(role);
-            response2.setToken(token);
+            response2.setToken(token.getToken());
             response2.setMessage("Login User  Successfully !");
             response2.setHttpStatus(HttpStatus.OK);
             response2.setStatusCode(200);
+            response2.setExpiration(token.getExpiration());
             return ResponseEntity.of(Optional.of(response2));
         } catch (Exception e) {
             response.setMessage(e.getMessage());
@@ -217,4 +238,37 @@ public class AuthController {
         }
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }
+
+    @PostMapping("/logout")
+public ResponseEntity<SuccessResponse> logoutUser(@RequestHeader(name = "Authorization", required = false) String authHeader) {
+    SuccessResponse response = new SuccessResponse();
+    
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        response.setMessage("No token provided!");
+        response.setHttpStatus(HttpStatus.UNAUTHORIZED);
+        response.setStatusCode(401);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    String jwt = authHeader.substring(7); // Extract token
+
+    try {
+        JwtToken jwtToken = this.jwtTokenServiceImpl.getTokenByToken(jwt);
+        if (jwtToken != null) {
+            jwtToken.setActive(false);
+            this.jwtTokenServiceImpl.addJwtToken(jwtToken);
+        }
+        
+        response.setMessage("You are logged out successfully!");
+        response.setHttpStatus(HttpStatus.OK);
+        response.setStatusCode(200);
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        response.setMessage(e.getMessage());
+        response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        response.setStatusCode(500);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
+
 }

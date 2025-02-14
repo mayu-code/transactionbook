@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import com.transaction.book.jwtSecurity.CustomUserDetail;
 import com.transaction.book.jwtSecurity.JwtValidator;
+import com.transaction.book.services.serviceImpl.JwtTokenServiceImpl;
 
 @Configuration
 @EnableWebSecurity
@@ -28,6 +29,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomUserDetail customUserDetail;
+
+    @Autowired
+    private JwtTokenServiceImpl jwtTokenServiceImpl;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -47,7 +51,7 @@ public class SecurityConfig {
             .csrf(csrf->csrf.disable())
             .cors(cors->cors.configurationSource(corsConfigurationSource()))
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(new JwtValidator(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtValidator(jwtTokenServiceImpl), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

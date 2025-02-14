@@ -11,4 +11,5 @@ public class LoginResponse {
     private int statusCode;
     private String role;
     private String token;
+    private long expiration;
 }

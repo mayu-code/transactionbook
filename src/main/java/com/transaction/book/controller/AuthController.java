@@ -106,6 +106,13 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+        if(!user.isApproved()){
+            response.setMessage("you are not approve yet!");
+            response.setHttpStatus(HttpStatus.BAD_REQUEST);
+            response.setStatusCode(400);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
 
         this.otpServiceImpl.generateAndSendOtp(email);
         response.setMessage("OTP sent successfully!");

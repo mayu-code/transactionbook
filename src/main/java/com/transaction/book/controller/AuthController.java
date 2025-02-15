@@ -106,7 +106,7 @@ public class AuthController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        if(!user.isApproved()){
+        if (!user.isApproved()) {
             response.setMessage("you are not approve yet!");
             response.setHttpStatus(HttpStatus.BAD_REQUEST);
             response.setStatusCode(400);
@@ -159,17 +159,17 @@ public class AuthController {
 
         try {
 
-            if(this.otpServiceImpl.resetPassword(email, otp, password)){
+            if (this.otpServiceImpl.resetPassword(email, otp, password)) {
                 response.setMessage("password reseted successfully !");
                 response.setHttpStatus(HttpStatus.OK);
                 response.setStatusCode(200);
                 return ResponseEntity.of(Optional.of(response));
-            }else{
+            } else {
                 response.setMessage("session is expired ! or invalid otp");
                 response.setHttpStatus(HttpStatus.BAD_REQUEST);
                 response.setStatusCode(400);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-            } 
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,19 +204,18 @@ public class AuthController {
             response.setStatusCode(500);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
         try {
 
             Authentication authentication = authenticate(user.getEmail(), request.getPassword());
             String role = user.getRole().toString();
-            JwtToken token = JwtProvider.generateJwt(authentication,request.getClientType());
+            JwtToken token = JwtProvider.generateJwt(authentication, request.getClientType());
 
             JwtToken jwtToken = new JwtToken();
             jwtToken.setClientType(request.getClientType());
             jwtToken.setIssuedAt(String.valueOf(Instant.now()));
             jwtToken.setUser(user);
             jwtToken.setExpiration(token.getExpiration());
-            jwtToken.setToken(token.getToken());         
+            jwtToken.setToken(token.getToken());
             jwtTokenServiceImpl.addJwtToken(jwtToken);
 
             LoginResponse response2 = new LoginResponse();
@@ -244,36 +243,37 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-public ResponseEntity<SuccessResponse> logoutUser(@RequestHeader(name = "Authorization", required = false) String authHeader) {
-    SuccessResponse response = new SuccessResponse();
-    
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        response.setMessage("No token provided!");
-        response.setHttpStatus(HttpStatus.UNAUTHORIZED);
-        response.setStatusCode(401);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-    }
+    public ResponseEntity<SuccessResponse> logoutUser(
+            @RequestHeader(name = "Authorization", required = false) String authHeader) {
+        SuccessResponse response = new SuccessResponse();
 
-    String jwt = authHeader.substring(7); 
-
-    try {
-        JwtToken jwtToken = this.jwtTokenServiceImpl.getTokenByToken(jwt);
-        if (jwtToken != null) {
-            jwtToken.setActive(false);
-            jwtToken.setLogoutAt(String.valueOf(Instant.now()));
-            this.jwtTokenServiceImpl.addJwtToken(jwtToken);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            response.setMessage("No token provided!");
+            response.setHttpStatus(HttpStatus.UNAUTHORIZED);
+            response.setStatusCode(401);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-        
-        response.setMessage("You are logged out successfully!");
-        response.setHttpStatus(HttpStatus.OK);
-        response.setStatusCode(200);
-        return ResponseEntity.ok(response);
-    } catch (Exception e) {
-        response.setMessage(e.getMessage());
-        response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        response.setStatusCode(500);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+        String jwt = authHeader.substring(7);
+
+        try {
+            JwtToken jwtToken = this.jwtTokenServiceImpl.getTokenByToken(jwt);
+            if (jwtToken != null) {
+                jwtToken.setActive(false);
+                jwtToken.setLogoutAt(String.valueOf(Instant.now()));
+                this.jwtTokenServiceImpl.addJwtToken(jwtToken);
+            }
+
+            response.setMessage("You are logged out successfully!");
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
-}
 
 }

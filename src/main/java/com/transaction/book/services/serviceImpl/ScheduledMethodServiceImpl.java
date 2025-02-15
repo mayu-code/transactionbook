@@ -19,7 +19,6 @@ public class ScheduledMethodServiceImpl implements ScheduledMethodService{
     @Scheduled(cron = "0 25 13 * * ?")
     @Override
     public void sendMorningNotification() {
-        System.out.println("ok");
         for(String userToken:this.userServiceImpl.getAllFcmTokens()){
             fcmService.sendNotification(userToken, "Good Morning!", "Start your day with a new update.");
         }

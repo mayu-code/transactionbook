@@ -33,7 +33,7 @@ public class OtpServiceImpl implements OtpService {
 
         otpRepo.deleteByEmail(email);
         String otp = generateOtp();
-        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(2);
+        LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(1);
         LocalDateTime sessionTime = LocalDateTime.now().plusMinutes(5);
 
         OtpEntry otpEntry = new OtpEntry();

@@ -52,9 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
                 transaction.setDeleteFlag(true);
                 this.transactionRepo.save(transaction);  
             }
-            System.out.println("ok");
         }
-        System.out.println("ok");
         customer.setDeleteFlag(true);
         this.customerRepo.save(customer);
         return;
@@ -83,7 +81,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public DueDate getDueDateCustomer() {
         DueDate dueDate = new DueDate();
-        System.out.println(LocalDate.now());
         dueDate.setTodaysDueDate(this.customerRepo.findTodaysDueDateCusotmers(String .valueOf(LocalDate.now())));
         dueDate.setTomorrowDueDate(this.customerRepo.findTodaysDueDateCusotmers(String.valueOf(LocalDate.now().plusDays(1))));
         return dueDate;

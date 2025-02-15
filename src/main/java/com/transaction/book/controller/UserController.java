@@ -64,8 +64,6 @@ public class UserController {
             }catch(Exception e){
                 dashboard.setYouWillGave(0);
             }
-
-            System.out.println(dashboard);
             DataResponse response = new DataResponse();
             response.setData(dashboard);
             response.setMessage("Dashboard get successfully !");

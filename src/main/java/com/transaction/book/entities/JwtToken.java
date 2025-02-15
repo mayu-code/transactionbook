@@ -1,7 +1,6 @@
 package com.transaction.book.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.itextpdf.kernel.pdf.canvas.parser.clipper.IClipper.ClipType;
 import com.transaction.book.constants.ClientType;
 
 import jakarta.persistence.Column;

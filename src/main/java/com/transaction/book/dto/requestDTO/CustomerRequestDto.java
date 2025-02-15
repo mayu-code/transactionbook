@@ -2,7 +2,6 @@ package com.transaction.book.dto.requestDTO;
 
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.google.firebase.database.annotations.NotNull;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
 import com.transaction.book.dto.requestDTO.DueDateRequest;
+import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
+import com.transaction.book.dto.responseDTO.CustomerResponse;
 import com.transaction.book.dto.responseObjects.DataResponse;
 import com.transaction.book.dto.responseObjects.SuccessResponse;
 import com.transaction.book.dto.updateDto.UpdateCustomer;
@@ -49,6 +51,20 @@ public class CustomerController {
     public ResponseEntity<SuccessResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = new Customer();
+        CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
+        if(customer1!=null){
+            response.setMessage("customer Name already present!");
+            response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
+            response.setStatusCode(209);
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
+        }
+        customer = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
+        if(customer!=null){
+            response.setMessage("Customer alredy present!");
+            response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
+            response.setStatusCode(209);
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
+        }
         try {
             customer.setName(request.getName());
             customer.setMobileNo(request.getMobileNo());

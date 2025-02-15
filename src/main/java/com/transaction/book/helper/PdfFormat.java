@@ -10,16 +10,13 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
-import com.transaction.book.dto.responseDTO.CustomerResponse;
 import com.transaction.book.dto.responseDTO.TransactionResponse;
-import com.transaction.book.entities.Customer;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

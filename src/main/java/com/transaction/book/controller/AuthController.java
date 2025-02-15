@@ -1,9 +1,6 @@
 package com.transaction.book.controller;
 
-import java.security.PublicKey;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -250,7 +247,7 @@ public ResponseEntity<SuccessResponse> logoutUser(@RequestHeader(name = "Authori
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    String jwt = authHeader.substring(7); // Extract token
+    String jwt = authHeader.substring(7); 
 
     try {
         JwtToken jwtToken = this.jwtTokenServiceImpl.getTokenByToken(jwt);

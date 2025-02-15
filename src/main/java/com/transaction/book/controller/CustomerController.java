@@ -50,7 +50,7 @@ public class CustomerController {
     @PostMapping("/addCustomer")
     public ResponseEntity<SuccessResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
         SuccessResponse response = new SuccessResponse();
-        Customer customer = new Customer();
+        Customer customer2 = new Customer();
         CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
         if(customer1!=null){
             response.setMessage("customer Name already present!");
@@ -58,14 +58,15 @@ public class CustomerController {
             response.setStatusCode(209);
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
         }
-        customer = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
-        if(customer!=null){
+        customer2 = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
+        if(customer2!=null){
             response.setMessage("Customer alredy present!");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
             response.setStatusCode(209);
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
         }
         try {
+            Customer customer = new Customer();
             customer.setName(request.getName());
             customer.setMobileNo(request.getMobileNo());
             customer.setGstinNo(request.getGstinNo());

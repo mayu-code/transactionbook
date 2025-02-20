@@ -14,8 +14,8 @@ import com.transaction.book.entities.Customer;
 @Repository
 public interface CustomerRepo extends JpaRepository<Customer, Long> {
 
-    @Query(value = "SELECT * FROM Customer WHERE mobileNo=:mobileNo AND delete_flag=false",nativeQuery = true)
-    Customer findByMobileNo(String mobileNo);
+    @Query(value = "SELECT * FROM Customer WHERE mobile_no=:mobileNo AND delete_flag=false",nativeQuery = true)
+    Customer findByMobileNo(@Param("mobileNo") String mobileNo);
 
     @Query(value = "SELECT * FROM Customer WHERE id=:id AND delete_flag=false",nativeQuery = true)
     Customer findById(long id);

@@ -30,8 +30,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerByMobileNo(String mobileNO) {
-        return this.customerRepo.findByMobileNo(mobileNO);
+    public Customer getCustomerByMobileNo(String mobileNo) {
+        return this.customerRepo.findByMobileNo(mobileNo);
     }
 
     @Override

@@ -83,6 +83,7 @@ public class CustomerServiceImpl implements CustomerService {
         DueDate dueDate = new DueDate();
         dueDate.setTodaysDueDate(this.customerRepo.findTodaysDueDateCusotmers(String .valueOf(LocalDate.now())));
         dueDate.setTomorrowDueDate(this.customerRepo.findTodaysDueDateCusotmers(String.valueOf(LocalDate.now().plusDays(1))));
+        dueDate.setNotPaymentYet(this.customerRepo.findDueDateCusotmersNotPaymentYet(String .valueOf(LocalDate.now())));
         return dueDate;
     }
 

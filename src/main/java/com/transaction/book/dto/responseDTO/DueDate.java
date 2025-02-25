@@ -8,4 +8,5 @@ import lombok.Data;
 public class DueDate {
     List<CustomerResponse> todaysDueDate;
     List<CustomerResponse> tomorrowDueDate;
+    List<CustomerResponse> notPaymentYet;
 }

@@ -185,7 +185,7 @@ public class AuthController {
         SuccessResponse response = new SuccessResponse();
         User user = this.userServiceImpl.getUserByEmail(request.getEmail());
         if (user == null) {
-            response.setMessage("User not present ! wrong mobile No");
+            response.setMessage("User not present !");
             response.setHttpStatus(HttpStatus.UNAUTHORIZED);
             response.setStatusCode(500);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);

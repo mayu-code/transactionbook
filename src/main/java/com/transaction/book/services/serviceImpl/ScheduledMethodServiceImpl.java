@@ -20,7 +20,7 @@ public class ScheduledMethodServiceImpl implements ScheduledMethodService{
     @Override
     public void sendMorningNotification() {
         for(String userToken:this.userServiceImpl.getAllFcmTokens()){
-            fcmService.sendNotification(userToken, "Good Morning!", "Start your day with a new update.");
+            fcmService.sendNotification(userToken, "Due Date Reminder", "Reminder regarding money !");
         }
     }
     

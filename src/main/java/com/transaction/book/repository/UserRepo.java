@@ -25,6 +25,6 @@ public interface UserRepo extends JpaRepository<User,Long>{
     @Query("SELECT u FROM User u Where u.approved=false and u.deleteFlag=false")
     List<User> findApprovalRequest();
 
-    @Query("SELECT u.fcmToken FROM User u WHERE u.deleteFlag=false")
+    @Query("SELECT u.fcmToken FROM User u WHERE u.deleteFlag=false AND u.approved=true")
     List<String> getAllFcmToken();
 }

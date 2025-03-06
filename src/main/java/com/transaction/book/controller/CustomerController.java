@@ -47,8 +47,8 @@ public class CustomerController {
     private TransactionServiceImpl transactionServiceImpl;
 
     @PostMapping("/addCustomer")
-    public ResponseEntity<SuccessResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
-        SuccessResponse response = new SuccessResponse();
+    public ResponseEntity<DataResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
+        DataResponse response = new DataResponse();
         Customer customer2 = new Customer();
         CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
         if(customer1!=null){
@@ -62,6 +62,7 @@ public class CustomerController {
             response.setMessage("Customer alredy present!");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
             response.setStatusCode(209);
+            response.setData(customer2);
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
         }
         try {
@@ -97,8 +98,8 @@ public class CustomerController {
             address.setCustomer(customer);
             this.addressServiceImpl.addAddress(address);
             }
-            this.customerServiceImpl.addCustomer(customer);
-
+            customer =this.customerServiceImpl.addCustomer(customer);
+            response.setData(customer);
             response.setMessage("customer added successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);

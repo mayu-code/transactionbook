@@ -93,6 +93,12 @@ public class TransactionController {
     public ResponseEntity<SuccessResponse> updateTransaction(@Valid @RequestBody UpdateTransaction request) {
         SuccessResponse response = new SuccessResponse();
         Transaction transaction = this.transactionServiceImpl.getTransactionById(request.getId());
+        if(transaction ==null){
+            response.setMessage("transaction not found!");
+            response.setHttpStatus(HttpStatus.NOT_FOUND);
+            response.setStatusCode(200);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
         Customer customer = transaction.getCustomer();
         if ((request.isGave() && request.isGot()) || (!request.isGave() && !request.isGot())) {
             response.setMessage("please set amount is gave or got ! you can set only one at a time");

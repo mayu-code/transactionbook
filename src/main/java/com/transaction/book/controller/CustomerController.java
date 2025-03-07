@@ -50,19 +50,20 @@ public class CustomerController {
     public ResponseEntity<DataResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
         DataResponse response = new DataResponse();
         Customer customer2 = new Customer();
-        CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
-        if(customer1!=null){
-            response.setMessage("customer Name already present!");
-            response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
-            response.setStatusCode(209);
-            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
-        }
         customer2 = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
         if(customer2!=null){
             response.setMessage("Customer alredy present!");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
-            response.setStatusCode(209);
+            response.setStatusCode(208);
             response.setData(customer2);
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
+        }
+        CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
+        if(customer1!=null){
+            response.setMessage("customer Name already present!");
+            response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
+            response.setStatusCode(208);
+            response.setData(customer1);
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
         }
         try {

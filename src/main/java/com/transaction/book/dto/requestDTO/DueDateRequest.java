@@ -20,4 +20,8 @@ public class DueDateRequest {
     )
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private String dueDate;
+
+    private double amount;
+
+    private String reason;
 }

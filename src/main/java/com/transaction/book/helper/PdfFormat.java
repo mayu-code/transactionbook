@@ -11,6 +11,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
 import com.transaction.book.dto.responseDTO.TransactionResponse;
+import com.transaction.book.entities.Remainder;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,4 +194,107 @@ public class PdfFormat {
             return " ";
         }
     }
+
+
+
+
+    public byte[] generateCustomerRemainderPdf(List<Remainder> remainders, CusotomerFullResponse customer) {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a | dd MMM ''yy");
+        String formattedDateTime = now.format(formatter);
+    
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(out);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc);
+    
+            // Title
+            Paragraph title = new Paragraph("Customer Failed Remainder Statement\n")
+                    .setFontSize(18)
+                    .setTextAlignment(TextAlignment.CENTER);
+            document.add(title);
+    
+            // Customer Information Section
+            document.add(new Paragraph("Customer Details:")
+                    .setFontSize(14)
+                    .setMarginBottom(5));
+    
+            Table customerTable = new Table(new float[]{100F, 300F});
+            customerTable.setWidth(UnitValue.createPercentValue(100));
+    
+            customerTable.addCell(createBoldCell("Name:"));
+            customerTable.addCell(new Cell().add(new Paragraph(customer.getName())));
+    
+            customerTable.addCell(createBoldCell("Mobile No:"));
+            customerTable.addCell(new Cell().add(new Paragraph(customer.getMobileNo())));
+    
+            customerTable.addCell(createBoldCell("GSTIN:"));
+            customerTable.addCell(new Cell().add(new Paragraph(customer.getGstinNo())));
+    
+            customerTable.addCell(createBoldCell("Outstanding Amount:"));
+            customerTable.addCell(new Cell().add(new Paragraph(String.valueOf(customer.getAmount()))));
+    
+            document.add(customerTable);
+            document.add(new Paragraph("\n")); // Space before remainder table
+    
+            // Ensure the list is not empty before accessing elements
+            if (!remainders.isEmpty()) {
+                String startDate = remainders.get(0).getDueDate().toString();
+                String endDate = remainders.get(remainders.size() - 1).getDueDate().toString();
+    
+                Paragraph subtitle = new Paragraph("Remainders from " + endDate + " to " + startDate) // Corrected order
+                        .setFontSize(12)
+                        .setTextAlignment(TextAlignment.CENTER);
+                document.add(subtitle);
+            }
+    
+            document.add(new Paragraph("\n"));
+    
+            // Table Header (Without Remainder ID)
+            float[] columnWidths = {150F, 250F}; // Adjusted for two columns
+            Table table = new Table(columnWidths);
+            table.setWidth(UnitValue.createPercentValue(100));
+    
+            addHeaderCell(table, "Due Date");
+            addHeaderCell(table, "Reason");
+    
+            // Add Remainder Data (Without ID & Settled)
+            for (Remainder remainder : remainders) {
+                addRemainderRow(table,
+                        remainder.getDueDate().toString(),
+                        remainder.getReason() != null ? remainder.getReason() : "-");
+            }
+    
+            document.add(table);
+            document.add(new Paragraph("\n"));
+    
+            // Footer
+            Paragraph footer = new Paragraph("Report Generated: " + formattedDateTime)
+                    .setFontSize(10)
+                    .setTextAlignment(TextAlignment.LEFT);
+            document.add(footer);
+    
+            document.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    
+                
+                        
+                private Cell createBoldCell(String text) {
+                    return new Cell().add(new Paragraph(text));
+                }
+                           
+            
+                private void addRemainderRow(Table table, String dueDate, String reason) {
+                    table.addCell(new Cell().add(new Paragraph(dueDate).setTextAlignment(TextAlignment.CENTER)));
+                    table.addCell(new Cell().add(new Paragraph(reason).setTextAlignment(TextAlignment.LEFT)));
+                }
+                
+            
+
 }

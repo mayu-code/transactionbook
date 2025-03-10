@@ -33,4 +33,7 @@ public class Customer {
 
     @OneToOne(mappedBy = "customer",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     private Address address;
+
+    @OneToMany(mappedBy = "customer",fetch =FetchType.LAZY, cascade=CascadeType.ALL)
+    private List<Remainder> remainders;
 }

@@ -16,7 +16,7 @@ public class ScheduledMethodServiceImpl implements ScheduledMethodService{
         this.userServiceImpl = userServiceImpl;
     }
 
-    @Scheduled(cron = "0 25 13 * * ?")
+    @Scheduled(cron = "0 0 10 * * ?")
     @Override
     public void sendMorningNotification() {
         for(String userToken:this.userServiceImpl.getAllFcmTokens()){

@@ -1,9 +1,11 @@
 package com.transaction.book.controller;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,11 +26,15 @@ import com.transaction.book.dto.responseObjects.SuccessResponse;
 import com.transaction.book.dto.updateDto.UpdateCustomer;
 import com.transaction.book.entities.Address;
 import com.transaction.book.entities.Customer;
+import com.transaction.book.entities.Remainder;
 import com.transaction.book.entities.Transaction;
 import com.transaction.book.helper.DateTimeFormat;
+import com.transaction.book.helper.PdfFormat;
 import com.transaction.book.services.serviceImpl.AddressServiceImpl;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
+
+import com.transaction.book.services.serviceImpl.RemainderServiceImpl;
 
 import jakarta.validation.Valid;
 
@@ -41,10 +47,16 @@ public class CustomerController {
     private CustomerServiceImpl customerServiceImpl;
 
     @Autowired
+    private RemainderServiceImpl RemainderServiceImpl;
+
+    @Autowired
     private AddressServiceImpl addressServiceImpl;
 
     @Autowired
     private TransactionServiceImpl transactionServiceImpl;
+
+    @Autowired
+    private PdfFormat pdfFromat;
 
     @PostMapping("/addCustomer")
     public ResponseEntity<DataResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
@@ -222,7 +234,25 @@ public class CustomerController {
         try {
             Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
             customer.setDueDate(request.getDueDate());
-            this.customerServiceImpl.addCustomer(customer);
+            customer = this.customerServiceImpl.addCustomer(customer);
+
+            Remainder remainder1 = this.RemainderServiceImpl.getExactLastRemainder(customer.getId());
+            if(remainder1!=null){
+                if(request.getReason()==null){
+                    remainder1.setReason("Next time");
+                }else{
+                    remainder1.setReason(request.getReason());
+                }
+                remainder1.setAmount(request.getAmount());
+                this.RemainderServiceImpl.addRemainder(remainder1);
+            }
+
+            Remainder remainder = new Remainder();
+            remainder.setDueDate(request.getDueDate());
+            remainder.setCustomer(customer);
+            remainder.setAddedDate(String.valueOf(LocalDateTime.now()));
+            this.RemainderServiceImpl.addRemainder(remainder);
+
             response.setMessage("Due Date set successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
@@ -253,4 +283,74 @@ public class CustomerController {
         }
     }
    
+    @GetMapping("/getCustomerRemainders/{customerId}")
+    public ResponseEntity<?> getCustomerRemainders(@PathVariable("customerId")long id){
+        try {
+            List<Remainder> remainders = this.RemainderServiceImpl.getAllRemindersByCustomerId(id);
+            DataResponse response = new DataResponse();
+            response.setMessage("get All Remainders Successfully !");
+            response.setStatusCode(200);
+            response.setHttpStatus(HttpStatus.OK);
+            response.setData(remainders);
+            return ResponseEntity.of(Optional.of(response));
+            
+        } catch (Exception e) {
+            SuccessResponse response =new  SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+        }
+    }
+
+    @GetMapping("/downLoadRemainders/{customerId}")
+    public ResponseEntity<?> downloadRemainderPdf(@PathVariable("customerId")long id){
+        try {
+            CusotomerFullResponse customer = this.customerServiceImpl.getCustomerResponseById(id);
+
+
+            List<Remainder> remainders= this.RemainderServiceImpl.getAllRemindersByCustomerId(id);
+            byte[] pdfBytes = pdfFromat.generateCustomerRemainderPdf(remainders,customer);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "inline; filename=statement.pdf");
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .headers(headers)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
+            response.setMessage(e.getMessage());
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @DeleteMapping("removeDueDate/{customerId}/{date}")
+    public ResponseEntity<?>  removeDueDate(@PathVariable("customerId") long id ,@PathVariable("date")String date){
+        try {
+            Remainder remainder = this.RemainderServiceImpl.getRemainderByDate(date, id);
+            remainder.setDelete(true);
+            this.RemainderServiceImpl.addRemainder(remainder);
+
+
+            Customer customer = this.customerServiceImpl.getCustomerById(id);
+            customer.setDueDate(null);
+            this.customerServiceImpl.addCustomer(customer);
+            SuccessResponse response = new SuccessResponse();
+            response.setHttpStatus(HttpStatus.OK);
+            response.setStatusCode(200);
+            response.setMessage("Due Date remove successfully !");
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            SuccessResponse response = new SuccessResponse();
+            response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+            response.setStatusCode(200);
+            response.setMessage(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

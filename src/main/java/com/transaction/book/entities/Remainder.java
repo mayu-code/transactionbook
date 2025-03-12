@@ -23,7 +23,7 @@ public class Remainder {
     private boolean isDelete;
     private String addedDate;
     private double amount;
-    private RemainderStatus status=RemainderStatus.Upcomming;
+    private RemainderStatus status=RemainderStatus.Upcoming;
 
     @JsonIgnore
     @ManyToOne

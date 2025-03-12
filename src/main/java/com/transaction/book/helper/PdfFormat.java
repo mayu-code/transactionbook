@@ -248,20 +248,22 @@ public class PdfFormat {
             document.add(new Paragraph("\n"));
     
             // Table Header (With Amount)
-            float[] columnWidths = {150F, 250F, 100F}; // Three columns
+            float[] columnWidths = {100F, 200F, 100F,100F}; // Three columns
             Table table = new Table(columnWidths);
             table.setWidth(UnitValue.createPercentValue(100));
     
             addHeaderCell(table, "Due Date");
             addHeaderCell(table, "Reason");
             addHeaderCell(table, "Amount");
+            addHeaderCell(table, "Status");
     
             // Add Remainder Data (Including Amount)
             for (Remainder remainder : remainders) {
                 addRemainderRow(table,
                         remainder.getDueDate().toString(),
                         remainder.getReason() != null ? remainder.getReason() : "-",
-                        String.valueOf(remainder.getAmount()));
+                        String.valueOf(remainder.getAmount()),
+                        String.valueOf(remainder.getStatus()));
             }
     
             document.add(table);
@@ -288,10 +290,11 @@ public class PdfFormat {
     }
     
     // Method to add remainder data rows
-    private void addRemainderRow(Table table, String dueDate, String reason, String amount) {
+    private void addRemainderRow(Table table, String dueDate, String reason, String amount,String status) {
         table.addCell(new Cell().add(new Paragraph(dueDate).setTextAlignment(TextAlignment.CENTER)));
         table.addCell(new Cell().add(new Paragraph(reason).setTextAlignment(TextAlignment.CENTER)));
         table.addCell(new Cell().add(new Paragraph(amount).setTextAlignment(TextAlignment.RIGHT)));
+        table.addCell(new Cell().add(new Paragraph(status).setTextAlignment(TextAlignment.CENTER)));
     }
     
 

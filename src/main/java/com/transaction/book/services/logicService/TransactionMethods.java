@@ -1,9 +1,6 @@
 package com.transaction.book.services.logicService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +45,7 @@ public class TransactionMethods {
 
 
                 Remainder remainder = this.remainderServiceImpl.getExactLastRemainder(customer.getId());
-                if(remainder!=null && remainder.getStatus().equals(RemainderStatus.Upcomming)){
+                if(remainder!=null && remainder.getStatus().equals(RemainderStatus.Upcoming)){
                     remainder.setStatus(RemainderStatus.Successful);
                     remainder.setAmount(request.getAmount());
                     this.remainderServiceImpl.addRemainder(remainder);

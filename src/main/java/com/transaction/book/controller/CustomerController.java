@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -248,12 +249,13 @@ public class CustomerController {
             Remainder remainder1 = this.RemainderServiceImpl.getExactLastRemainder(customer.getId());
             if(remainder1!=null){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
                 
                 LocalDate previousDate = LocalDate.parse(remainder1.getDueDate(), formatter);
                 LocalDate newDate = LocalDate.parse(request.getDueDate(), formatter);
                 
                 if (newDate.isBefore(previousDate) || newDate.isEqual(previousDate)) {
-                    response.setMessage("Set a later due date after "+(previousDate)+" or remove the previous remainder.");
+                    response.setMessage("Set a later due date after "+(previousDate.format(formatter2))+" or remove the previous remainder.");
                     response.setHttpStatus(HttpStatus.BAD_REQUEST);
                     response.setStatusCode(400);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

@@ -1,6 +1,8 @@
 package com.transaction.book.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +18,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.google.rpc.BadRequest;
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
 import com.transaction.book.dto.requestDTO.DueDateRequest;
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
@@ -59,7 +64,8 @@ public class CustomerController {
     private PdfFormat pdfFromat;
 
     @PostMapping("/addCustomer")
-    public ResponseEntity<DataResponse> addCustomer(@Valid @RequestBody CustomerRequestDto request) {
+    public ResponseEntity<DataResponse> addCustomer(@RequestPart @Valid CustomerRequestDto request,
+                                                    @RequestPart(value = "bill", required = false) MultipartFile bill) {
         DataResponse response = new DataResponse();
         Customer customer2 = new Customer();
         customer2 = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
@@ -94,8 +100,13 @@ public class CustomerController {
                 } else {
                     transaction.setAmount(request.getAmount());
                 }
+                byte[] billBytes = null;
+                if (bill != null && !bill.isEmpty()) {
+                    billBytes = bill.getBytes();
+                }
                 customer.setAmount(transaction.getAmount());
                 transaction.setDate(request.getDate());
+                transaction.setBill(billBytes);
                 transaction.setBalanceAmount(customer.getAmount());
                 transaction.setCustomer(customer);
                 this.transactionServiceImpl.addTransaction(transaction);
@@ -238,6 +249,18 @@ public class CustomerController {
 
             Remainder remainder1 = this.RemainderServiceImpl.getExactLastRemainder(customer.getId());
             if(remainder1!=null){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+                LocalDate previousDate = LocalDate.parse(remainder1.getDueDate(), formatter);
+                LocalDate newDate = LocalDate.parse(request.getDueDate(), formatter);
+
+                if (newDate.isBefore(previousDate) || newDate.isEqual(previousDate)) {
+                    response.setMessage("Date should be after the previous remainder or remove the previous remainder first!");
+                    response.setHttpStatus(HttpStatus.BAD_REQUEST);
+                    response.setStatusCode(400);
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+                }
+
                 if(request.getReason()==null){
                     remainder1.setReason("Next time");
                 }else{

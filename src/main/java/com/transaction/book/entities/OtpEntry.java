@@ -23,6 +23,7 @@ public class OtpEntry {
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expirationTime);
     }
+    
     public boolean isSessionExpired() {
         return LocalDateTime.now().isAfter(sessionTime);
     }

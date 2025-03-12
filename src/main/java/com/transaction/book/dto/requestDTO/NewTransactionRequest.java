@@ -3,6 +3,8 @@ package com.transaction.book.dto.requestDTO;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -25,6 +27,9 @@ public class NewTransactionRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private String date;
 
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] bill;
 
     @Size(max = 255, message = "Detail must not exceed 255 characters")
     private String detail;

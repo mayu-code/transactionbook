@@ -195,9 +195,6 @@ public class PdfFormat {
         }
     }
 
-
-
-
     public byte[] generateCustomerRemainderPdf(List<Remainder> remainders, CusotomerFullResponse customer) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a | dd MMM ''yy");
@@ -231,7 +228,7 @@ public class PdfFormat {
             customerTable.addCell(createBoldCell("GSTIN:"));
             customerTable.addCell(new Cell().add(new Paragraph(customer.getGstinNo())));
     
-            customerTable.addCell(createBoldCell("Outstanding Amount:"));
+            customerTable.addCell(createBoldCell("Amount:"));
             customerTable.addCell(new Cell().add(new Paragraph(String.valueOf(customer.getAmount()))));
     
             document.add(customerTable);
@@ -250,19 +247,21 @@ public class PdfFormat {
     
             document.add(new Paragraph("\n"));
     
-            // Table Header (Without Remainder ID)
-            float[] columnWidths = {150F, 250F}; // Adjusted for two columns
+            // Table Header (With Amount)
+            float[] columnWidths = {150F, 250F, 100F}; // Three columns
             Table table = new Table(columnWidths);
             table.setWidth(UnitValue.createPercentValue(100));
     
             addHeaderCell(table, "Due Date");
             addHeaderCell(table, "Reason");
+            addHeaderCell(table, "Amount");
     
-            // Add Remainder Data (Without ID & Settled)
+            // Add Remainder Data (Including Amount)
             for (Remainder remainder : remainders) {
                 addRemainderRow(table,
                         remainder.getDueDate().toString(),
-                        remainder.getReason() != null ? remainder.getReason() : "-");
+                        remainder.getReason() != null ? remainder.getReason() : "-",
+                        String.valueOf(remainder.getAmount()));
             }
     
             document.add(table);
@@ -283,18 +282,17 @@ public class PdfFormat {
     }
     
     
-                
-                        
-                private Cell createBoldCell(String text) {
-                    return new Cell().add(new Paragraph(text));
-                }
-                           
-            
-                private void addRemainderRow(Table table, String dueDate, String reason) {
-                    table.addCell(new Cell().add(new Paragraph(dueDate).setTextAlignment(TextAlignment.CENTER)));
-                    table.addCell(new Cell().add(new Paragraph(reason).setTextAlignment(TextAlignment.LEFT)));
-                }
-                
-            
+    // Helper method to create bold labels
+    private Cell createBoldCell(String text) {
+        return new Cell().add(new Paragraph(text));
+    }
+    
+    // Method to add remainder data rows
+    private void addRemainderRow(Table table, String dueDate, String reason, String amount) {
+        table.addCell(new Cell().add(new Paragraph(dueDate).setTextAlignment(TextAlignment.CENTER)));
+        table.addCell(new Cell().add(new Paragraph(reason).setTextAlignment(TextAlignment.CENTER)));
+        table.addCell(new Cell().add(new Paragraph(amount).setTextAlignment(TextAlignment.RIGHT)));
+    }
+    
 
 }

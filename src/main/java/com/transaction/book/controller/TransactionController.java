@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.transaction.book.dto.requestDTO.NewTransactionRequest;
 import com.transaction.book.dto.responseDTO.TransactionResponse;
@@ -53,7 +55,8 @@ public class TransactionController {
     private PdfFormat pdfFromat;
 
     @PostMapping("/addTransaction")
-    public ResponseEntity<SuccessResponse> addTransaction(@Valid @RequestBody NewTransactionRequest request) {
+    public ResponseEntity<SuccessResponse> addTransaction(@RequestPart("transaction") @Valid NewTransactionRequest request,
+                                                            @RequestPart(value = "bill", required = false) MultipartFile bill) {
         SuccessResponse response = new SuccessResponse();
         Customer customer = this.customerServiceImpl.getCustomerById(request.getCustomerId());
         if (customer == null) {
@@ -70,7 +73,11 @@ public class TransactionController {
         }
 
         try {
-            if (this.transactionMethods.addNewTransaction(request)) {
+            byte[] billBytes = null;
+            if (bill != null && !bill.isEmpty()) {
+                billBytes = bill.getBytes();
+            }
+            if (this.transactionMethods.addNewTransaction(request,billBytes)) {
                 response.setMessage("Add Transaction Successfully !");
                 response.setHttpStatus(HttpStatus.OK);
                 response.setStatusCode(200);
@@ -90,7 +97,8 @@ public class TransactionController {
     }
 
     @PostMapping("/updateTransaction")
-    public ResponseEntity<SuccessResponse> updateTransaction(@Valid @RequestBody UpdateTransaction request) {
+    public ResponseEntity<SuccessResponse> updateTransaction(@RequestPart("updateTransaction") @Valid UpdateTransaction request,
+                                                            @RequestPart(value = "bill", required = false) MultipartFile bill) {
         SuccessResponse response = new SuccessResponse();
         Transaction transaction = this.transactionServiceImpl.getTransactionById(request.getId());
         if(transaction ==null){
@@ -107,7 +115,12 @@ public class TransactionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         try {
-            this.transactionMethods.updateTransaction(customer.getId(), request);
+
+            byte[] billBytes = null;
+            if (bill != null && !bill.isEmpty()) {
+                billBytes = bill.getBytes();
+            }
+            this.transactionMethods.updateTransaction(customer.getId(), request,billBytes);
 
             response.setMessage("transaction update successfully !");
             response.setHttpStatus(HttpStatus.OK);

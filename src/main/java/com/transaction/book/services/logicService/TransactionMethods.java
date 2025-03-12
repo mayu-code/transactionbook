@@ -22,11 +22,12 @@ public class TransactionMethods {
     @Autowired
     private TransactionServiceImpl transactionServiceImpl;
 
-    public boolean addNewTransaction(NewTransactionRequest request){
+    public boolean addNewTransaction(NewTransactionRequest request,byte[] bill){
         Customer customer = this.customerServiceImpl.getCustomerById(request.getCustomerId());
         Transaction transaction = new Transaction();
             transaction.setDate(request.getDate());
             transaction.setDetail(request.getDetail());
+            transaction.setBill(bill);
 
             if(request.isGave()){
                 customer.setAmount(customer.getAmount()+(request.getAmount()*(-1)));
@@ -61,7 +62,7 @@ public class TransactionMethods {
             return true;
     }
 
-    public boolean updateTransaction(long id,UpdateTransaction request){
+    public boolean updateTransaction(long id,UpdateTransaction request,byte[] bill){
         Customer customer = this.customerServiceImpl.getCustomerById(id);
         Transaction transaction1 = this.transactionServiceImpl.getTransactionById(request.getId());
         customer.setAmount(customer.getAmount()-transaction1.getAmount());
@@ -93,6 +94,7 @@ public class TransactionMethods {
             customer= this.customerServiceImpl.addCustomer(customer);
 
             transaction.setCustomer(customer);
+            transaction.setBill(bill);
             transaction = this.transactionServiceImpl.addTransaction(transaction);
 
             double balance = transaction.getBalanceAmount();

@@ -276,6 +276,7 @@ public class CustomerController {
             remainder.setDueDate(request.getDueDate());
             remainder.setCustomer(customer);
             remainder.setAddedDate(String.valueOf(LocalDateTime.now()));
+            remainder.setAmount(request.getAmount());
             this.RemainderServiceImpl.addRemainder(remainder);
 
             response.setMessage("Due Date set successfully !");

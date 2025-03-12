@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import com.transaction.book.constants.RemainderStatus;
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
 import com.transaction.book.dto.requestDTO.DueDateRequest;
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
@@ -269,6 +269,7 @@ public class CustomerController {
                     remainder1.setReason(request.getReason());
                 }
                 remainder1.setAmount(request.getAmount());
+                remainder1.setStatus(RemainderStatus.Failed);
                 this.RemainderServiceImpl.addRemainder(remainder1);
             }
 

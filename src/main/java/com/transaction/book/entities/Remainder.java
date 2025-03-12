@@ -1,6 +1,7 @@
 package com.transaction.book.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.transaction.book.constants.RemainderStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +23,7 @@ public class Remainder {
     private boolean isDelete;
     private String addedDate;
     private double amount;
+    private RemainderStatus status=RemainderStatus.Upcomming;
 
     @JsonIgnore
     @ManyToOne

@@ -1,16 +1,22 @@
 package com.transaction.book.services.logicService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.transaction.book.constants.RemainderStatus;
 import com.transaction.book.dto.requestDTO.NewTransactionRequest;
 import com.transaction.book.dto.updateDto.UpdateTransaction;
 import com.transaction.book.entities.Customer;
+import com.transaction.book.entities.Remainder;
 import com.transaction.book.entities.Transaction;
 import com.transaction.book.helper.DateTimeFormat;
 import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
+import com.transaction.book.services.serviceImpl.RemainderServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 
 @Service
@@ -21,6 +27,9 @@ public class TransactionMethods {
 
     @Autowired
     private TransactionServiceImpl transactionServiceImpl;
+
+    @Autowired
+    private RemainderServiceImpl remainderServiceImpl;
 
     public boolean addNewTransaction(NewTransactionRequest request,byte[] bill){
         Customer customer = this.customerServiceImpl.getCustomerById(request.getCustomerId());
@@ -36,6 +45,14 @@ public class TransactionMethods {
             else{
                 customer.setAmount(customer.getAmount()+request.getAmount());
                 transaction.setAmount(request.getAmount());
+
+
+                Remainder remainder = this.remainderServiceImpl.getExactLastRemainder(customer.getId());
+                if(remainder!=null && remainder.getStatus().equals(RemainderStatus.Upcomming)){
+                    remainder.setStatus(RemainderStatus.Successful);
+                    remainder.setAmount(request.getAmount());
+                    this.remainderServiceImpl.addRemainder(remainder);
+                }
             }
 
             Transaction transaction3 = this.transactionServiceImpl.findPreviousTransaction(customer.getId(), request.getDate());

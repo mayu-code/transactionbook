@@ -244,22 +244,23 @@ public class CustomerController {
         try {
             Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
             customer.setDueDate(request.getDueDate());
-            customer = this.customerServiceImpl.addCustomer(customer);
-
+            
             Remainder remainder1 = this.RemainderServiceImpl.getExactLastRemainder(customer.getId());
             if(remainder1!=null){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+                
                 LocalDate previousDate = LocalDate.parse(remainder1.getDueDate(), formatter);
                 LocalDate newDate = LocalDate.parse(request.getDueDate(), formatter);
-
+                
                 if (newDate.isBefore(previousDate) || newDate.isEqual(previousDate)) {
                     response.setMessage("Set a later due date or remove the previous remainder.");
                     response.setHttpStatus(HttpStatus.BAD_REQUEST);
                     response.setStatusCode(400);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
-
+                
+                customer = this.customerServiceImpl.addCustomer(customer);
+                
                 if(request.getReason()==null){
                     remainder1.setReason("Next time");
                 }else{

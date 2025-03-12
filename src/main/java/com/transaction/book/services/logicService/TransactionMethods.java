@@ -46,7 +46,7 @@ public class TransactionMethods {
 
                 Remainder remainder = this.remainderServiceImpl.getExactLastRemainder(customer.getId());
                 if(remainder!=null && remainder.getStatus().equals(RemainderStatus.Upcoming)){
-                    remainder.setStatus(RemainderStatus.Successful);
+                    remainder.setStatus(RemainderStatus.Paid);
                     remainder.setAmount(request.getAmount());
                     this.remainderServiceImpl.addRemainder(remainder);
                     customer.setDueDate(null);

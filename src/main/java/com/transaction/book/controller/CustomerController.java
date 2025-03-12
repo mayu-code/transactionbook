@@ -253,14 +253,14 @@ public class CustomerController {
                 LocalDate newDate = LocalDate.parse(request.getDueDate(), formatter);
                 
                 if (newDate.isBefore(previousDate) || newDate.isEqual(previousDate)) {
-                    response.setMessage("Set a later due date or remove the previous remainder.");
+                    response.setMessage("Set a later due date after"+(previousDate)+"or remove the previous remainder.");
                     response.setHttpStatus(HttpStatus.BAD_REQUEST);
                     response.setStatusCode(400);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
                 
                 customer = this.customerServiceImpl.addCustomer(customer);
-                
+
                 if(request.getReason()==null){
                     remainder1.setReason("Next time");
                 }else{

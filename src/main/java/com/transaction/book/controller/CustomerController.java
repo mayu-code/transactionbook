@@ -247,7 +247,7 @@ public class CustomerController {
             customer.setDueDate(request.getDueDate());
             
             Remainder remainder1 = this.RemainderServiceImpl.getExactLastRemainder(customer.getId());
-            if(remainder1!=null){
+            if(remainder1!=null && remainder1.getStatus().equals(RemainderStatus.Upcoming)){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
                 

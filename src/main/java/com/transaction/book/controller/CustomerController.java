@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.rpc.BadRequest;
+
 import com.transaction.book.dto.requestDTO.CustomerRequestDto;
 import com.transaction.book.dto.requestDTO.DueDateRequest;
 import com.transaction.book.dto.responseDTO.CusotomerFullResponse;
@@ -40,7 +40,6 @@ import com.transaction.book.services.serviceImpl.CustomerServiceImpl;
 import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 
 import com.transaction.book.services.serviceImpl.RemainderServiceImpl;
-
 import jakarta.validation.Valid;
 
 @RestController
@@ -255,7 +254,7 @@ public class CustomerController {
                 LocalDate newDate = LocalDate.parse(request.getDueDate(), formatter);
 
                 if (newDate.isBefore(previousDate) || newDate.isEqual(previousDate)) {
-                    response.setMessage("Date should be after the previous remainder or remove the previous remainder first!");
+                    response.setMessage("Set a later due date or remove the previous remainder.");
                     response.setHttpStatus(HttpStatus.BAD_REQUEST);
                     response.setStatusCode(400);
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

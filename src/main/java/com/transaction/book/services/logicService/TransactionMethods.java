@@ -52,6 +52,7 @@ public class TransactionMethods {
                     remainder.setStatus(RemainderStatus.Successful);
                     remainder.setAmount(request.getAmount());
                     this.remainderServiceImpl.addRemainder(remainder);
+                    customer.setDueDate(null);
                 }
             }
 

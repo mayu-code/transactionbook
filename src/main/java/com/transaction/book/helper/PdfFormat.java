@@ -206,7 +206,7 @@ public class PdfFormat {
             Document document = new Document(pdfDoc);
     
             // Title
-            Paragraph title = new Paragraph("Customer Failed Remainder Statement\n")
+            Paragraph title = new Paragraph("Customer Remainder Statement\n")
                     .setFontSize(18)
                     .setTextAlignment(TextAlignment.CENTER);
             document.add(title);

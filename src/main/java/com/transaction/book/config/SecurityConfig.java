@@ -44,9 +44,9 @@ public class SecurityConfig {
         http
             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth->auth
-                    .requestMatchers("api/user/**").hasAnyRole("ADMIN","USER")
-                    .requestMatchers("api/admin/**").hasAnyRole("ADMIN")
-                    .requestMatchers("api/auth/**","swagger-ui/**","v3/**").permitAll()
+                    .requestMatchers("/api/user/**").hasAnyRole("ADMIN","USER")
+                    .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
+                    .requestMatchers("/api/auth/**","swagger-ui/**","v3/**").permitAll()
                     .anyRequest().authenticated())
             .csrf(csrf->csrf.disable())
             .cors(cors->cors.configurationSource(corsConfigurationSource()))

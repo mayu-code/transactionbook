@@ -20,6 +20,7 @@ public interface UserRepo extends JpaRepository<User,Long>{
 
     @Query("SELECT u FROM User u Where u.email=:email and u.deleteFlag=false")
     User findByEmail(String email);
+    
     boolean existsByIdNotNull();
     
     @Query("SELECT u FROM User u Where u.approved=false and u.deleteFlag=false")

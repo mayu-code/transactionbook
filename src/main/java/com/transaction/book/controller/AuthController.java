@@ -56,7 +56,7 @@ public class AuthController {
         SuccessResponse response = new SuccessResponse();
         User user = this.userServiceImpl.getUserByEmail(request.getEmail());
         if (user != null) {
-            response.setMessage("User Already Present successfully !");
+            response.setMessage("User Already Present !");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
             response.setStatusCode(209);
             return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(response);
@@ -190,6 +190,7 @@ public class AuthController {
             response.setStatusCode(500);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
+        System.out.println(user.isApproved());
         if (!user.isApproved()) {
             response.setMessage("User Not Approved Yet ! please contact to App Owner !");
             response.setHttpStatus(HttpStatus.UNAUTHORIZED);

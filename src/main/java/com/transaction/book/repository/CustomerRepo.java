@@ -14,10 +14,10 @@ import com.transaction.book.entities.Customer;
 @Repository
 public interface CustomerRepo extends JpaRepository<Customer, Long> {
 
-    @Query(value = "SELECT * FROM Customer WHERE mobile_no=:mobileNo AND delete_flag=false",nativeQuery = true)
+    @Query(value = "SELECT * FROM customer WHERE mobile_no=:mobileNo AND delete_flag=false",nativeQuery = true)
     Customer findByMobileNo(@Param("mobileNo") String mobileNo);
 
-    @Query(value = "SELECT * FROM Customer WHERE id=:id AND delete_flag=false",nativeQuery = true)
+    @Query(value = "SELECT * FROM customer WHERE id=:id AND delete_flag=false",nativeQuery = true)
     Customer findById(long id);
 
     @Query("SELECT c FROM Customer c WHERE c.deleteFlag=false ORDER BY c.updateDate DESC")

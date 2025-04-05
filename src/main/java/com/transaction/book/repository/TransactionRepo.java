@@ -13,7 +13,7 @@ import com.transaction.book.entities.Transaction;
 @Repository
 public interface TransactionRepo extends JpaRepository<Transaction, Long> {
 
-    @Query(value = "SELECT * FROM Transaction WHERE id=:id AND delete_flag=false",nativeQuery = true)
+    @Query(value = "SELECT * FROM transaction WHERE id=:id AND delete_flag=false",nativeQuery = true)
     Transaction findById(@Param("id")long id);
 
     @Query("SELECT t FROM Transaction t WHERE t.customer.id=:id AND deleteFlag=false  ORDER BY t.date DESC")

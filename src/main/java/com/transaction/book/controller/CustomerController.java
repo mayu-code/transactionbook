@@ -42,10 +42,12 @@ import com.transaction.book.services.serviceImpl.TransactionServiceImpl;
 
 import com.transaction.book.services.serviceImpl.RemainderServiceImpl;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/user")
 @CrossOrigin
+@Slf4j
 public class CustomerController {
 
     @Autowired
@@ -66,10 +68,12 @@ public class CustomerController {
     @PostMapping("/addCustomer")
     public ResponseEntity<DataResponse> addCustomer(@RequestPart @Valid CustomerRequestDto request,
                                                     @RequestPart(value = "bill", required = false) MultipartFile bill) {
+        log.info("Adding customer with name: {}", request.getName());
         DataResponse response = new DataResponse();
         Customer customer2 = new Customer();
         customer2 = this.customerServiceImpl.getCustomerByMobileNo(request.getMobileNo());
         if(customer2!=null){
+            log.warn("Customer with mobile number: {} already exists", request.getMobileNo());
             response.setMessage("Customer alredy present!");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
             response.setStatusCode(208);
@@ -78,6 +82,7 @@ public class CustomerController {
         }
         CusotomerFullResponse customer1 = this.customerServiceImpl.getCustomerResponseByName(request.getName());
         if(customer1!=null){
+            log.warn("Customer with name: {} already exists", request.getName());
             response.setMessage("customer Name already present!");
             response.setHttpStatus(HttpStatus.ALREADY_REPORTED);
             response.setStatusCode(208);
@@ -124,11 +129,13 @@ public class CustomerController {
             }
             customer =this.customerServiceImpl.addCustomer(customer);
             response.setData(customer);
+            log.info("Customer added successfully with name: {}", request.getName());
             response.setMessage("customer added successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error adding customer with name: {}: {}", request.getName(), e.getMessage());
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -142,14 +149,17 @@ public class CustomerController {
             @RequestParam(required = false) boolean gave,
             @RequestParam(required = false) boolean get,
             @RequestParam(required = false) boolean settle) {
+        log.info("Fetching all customers with query: {}", query);
         DataResponse response = new DataResponse();
         try {
             response.setData(this.customerServiceImpl.findAllCustomerResponse(query, gave, get, settle));
+            log.info("Fetched all customers successfully");
             response.setMessage("get all Customers !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error fetching customers: {}", e.getMessage());
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -159,14 +169,17 @@ public class CustomerController {
 
     @DeleteMapping("/deleteCustomer/{id}")
     public ResponseEntity<SuccessResponse> deleteCustomer(@PathVariable("id") long id) {
+        log.info("Deleting customer with ID: {}", id);
         SuccessResponse response = new SuccessResponse();
         try {
             this.customerServiceImpl.deleteCusotmer(id);
+            log.info("Customer with ID: {} deleted successfully", id);
             response.setMessage("delete Customer successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error deleting customer with ID: {}: {}", id, e.getMessage());
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -176,14 +189,17 @@ public class CustomerController {
 
     @GetMapping("/getCustomer/{id}")
     public ResponseEntity<?> getCustomerbyId(@PathVariable("id") long id) {
+        log.info("Fetching customer with ID: {}", id);
         try {
             DataResponse response = new DataResponse();
             response.setData(this.customerServiceImpl.getCustomerResponseById(id));
+            log.info("Customer with ID: {} fetched successfully", id);
             response.setMessage("Customer get successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error fetching customer with ID: {}: {}", id, e.getMessage());
             SuccessResponse response = new SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -194,9 +210,11 @@ public class CustomerController {
 
     @PostMapping("/updateCustomer")
     public ResponseEntity<SuccessResponse> updateCustomer(@Valid @RequestBody UpdateCustomer request){
+        log.info("Updating customer with ID: {}", request.getId());
         SuccessResponse response = new SuccessResponse();
         Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
         if(customer==null){
+            log.warn("Customer with ID: {} not found", request.getId());
             response.setMessage("something went wrong !");
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -227,11 +245,13 @@ public class CustomerController {
                     this.addressServiceImpl.addAddress(address);
                 }
             }
+            log.info("Customer with ID: {} updated successfully", request.getId());
             response.setMessage("Customer Updated successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error updating customer with ID: {}: {}", request.getId(), e.getMessage());
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -241,6 +261,7 @@ public class CustomerController {
 
     @PostMapping("/setDueDate")
     public ResponseEntity<SuccessResponse> setDueDate(@Valid @RequestBody DueDateRequest request){
+        log.info("Setting due date for customer with ID: {}", request.getId());
         SuccessResponse response = new SuccessResponse();
         try {
             Customer customer = this.customerServiceImpl.getCustomerById(request.getId());
@@ -280,11 +301,13 @@ public class CustomerController {
             remainder.setAmount(request.getAmount());
             this.RemainderServiceImpl.addRemainder(remainder);
 
+            log.info("Due date set successfully for customer with ID: {}", request.getId());
             response.setMessage("Due Date set successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error setting due date for customer with ID: {}: {}", request.getId(), e.getMessage());
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(500);
@@ -294,14 +317,17 @@ public class CustomerController {
 
     @GetMapping("/getCustomersOnDueDate")
     public ResponseEntity<?> getCustomersOnDueDate(){
+        log.info("Fetching customers on due date");
         try {
             DataResponse response = new DataResponse();
             response.setData(this.customerServiceImpl.getDueDateCustomer());
+            log.info("Fetched customers on due date successfully");
             response.setMessage("Due Date set successfully !");
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             return ResponseEntity.of(Optional.of(response));
         } catch (Exception e) {
+            log.error("Error fetching customers on due date: {}", e.getMessage());
             SuccessResponse response = new SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -312,9 +338,11 @@ public class CustomerController {
    
     @GetMapping("/getCustomerRemainders/{customerId}")
     public ResponseEntity<?> getCustomerRemainders(@PathVariable("customerId")long id){
+        log.info("Fetching remainders for customer with ID: {}", id);
         try {
             List<Remainder> remainders = this.RemainderServiceImpl.getAllRemindersByCustomerId(id);
             DataResponse response = new DataResponse();
+            log.info("Fetched remainders for customer with ID: {} successfully", id);
             response.setMessage("get All Remainders Successfully !");
             response.setStatusCode(200);
             response.setHttpStatus(HttpStatus.OK);
@@ -322,6 +350,7 @@ public class CustomerController {
             return ResponseEntity.of(Optional.of(response));
             
         } catch (Exception e) {
+            log.error("Error fetching remainders for customer with ID: {}: {}", id, e.getMessage());
             SuccessResponse response =new  SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -333,6 +362,7 @@ public class CustomerController {
 
     @GetMapping("/downLoadRemainders/{customerId}")
     public ResponseEntity<?> downloadRemainderPdf(@PathVariable("customerId")long id){
+        log.info("Downloading remainder PDF for customer with ID: {}", id);
         try {
             CusotomerFullResponse customer = this.customerServiceImpl.getCustomerResponseById(id);
 
@@ -343,10 +373,12 @@ public class CustomerController {
             HttpHeaders headers = new HttpHeaders();
             headers.add("Content-Disposition", "inline; filename=statement.pdf");
 
+            log.info("Remainder PDF downloaded successfully for customer with ID: {}", id);
             return ResponseEntity.status(HttpStatus.OK)
                     .headers(headers)
                     .body(pdfBytes);
         } catch (Exception e) {
+            log.error("Error downloading remainder PDF for customer with ID: {}: {}", id, e.getMessage());
             SuccessResponse response = new SuccessResponse();
             response.setMessage(e.getMessage());
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -357,6 +389,7 @@ public class CustomerController {
 
     @DeleteMapping("removeDueDate/{customerId}/{date}")
     public ResponseEntity<?>  removeDueDate(@PathVariable("customerId") long id ,@PathVariable("date")String date){
+        log.info("Removing due date for customer with ID: {} and date: {}", id, date);
         try {
             Remainder remainder = this.RemainderServiceImpl.getRemainderByDate(date, id);
             remainder.setDelete(true);
@@ -367,11 +400,13 @@ public class CustomerController {
             customer.setDueDate(null);
             this.customerServiceImpl.addCustomer(customer);
             SuccessResponse response = new SuccessResponse();
+            log.info("Due date removed successfully for customer with ID: {} and date: {}", id, date);
             response.setHttpStatus(HttpStatus.OK);
             response.setStatusCode(200);
             response.setMessage("Due Date remove successfully !");
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
+            log.error("Error removing due date for customer with ID: {} and date: {}: {}", id, date, e.getMessage());
             SuccessResponse response = new SuccessResponse();
             response.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
             response.setStatusCode(200);

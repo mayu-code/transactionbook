@@ -109,7 +109,9 @@ public class TransactionMethods {
             customer= this.customerServiceImpl.addCustomer(customer);
 
             transaction.setCustomer(customer);
-            transaction.setBill(bill);
+            if(bill!=null){
+                transaction.setBill(bill);
+            }
             transaction = this.transactionServiceImpl.addTransaction(transaction);
 
             double balance = transaction.getBalanceAmount();

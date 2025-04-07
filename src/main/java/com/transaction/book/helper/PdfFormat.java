@@ -56,7 +56,7 @@ public class PdfFormat {
                 String endDate = formatedDate(transactions.get(transactions.size() - 1).getDate());
 
                 Paragraph subtitle = new Paragraph(
-                        "Phone Number :-" + customer.getMobileNo() + "\n( " + startDate + " - " + endDate + " )")
+                        "Phone Number :-" + customer.getMobileNo() + "\n( " + endDate + " - " + startDate + " )")
                         .setFontSize(12)
                         .setTextAlignment(TextAlignment.CENTER);
 
